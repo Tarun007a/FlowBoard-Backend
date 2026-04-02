@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: auth-service
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/flow_board_auth_service_db
+    username: root
+    password: ${db_password}
+
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+security:
+  jwt:
+    secret: ${jwt-secret-key}
