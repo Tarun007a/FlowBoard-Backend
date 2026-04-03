@@ -15,10 +15,11 @@ public interface UserService {
     public void deactivateAccount(Integer id);
 
     public String deleteById(Integer userId);
-
     public CustomPageResponse<UserDto> findAllByRole(String roleStr, int page, int size, String sortBy, String direction);
 
     public CustomPageResponse<UserDto> searchByFullName(String fullName, int page, int size, String sortBy, String direction);
 
     User findById(Integer userId);
+
+    UserDto updateAvatarUrl(Integer id, String url);
 }

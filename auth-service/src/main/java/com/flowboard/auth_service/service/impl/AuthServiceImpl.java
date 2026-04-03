@@ -61,7 +61,7 @@ public class AuthServiceImpl implements AuthService {
             userRepository.delete(userOptional.get());
             userVerificationRepository.deleteByUserId(userOptional.get().getUserId());
         }
-        
+
         User user = signupRequestMapper.mapTo(signupDto);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         User savedUser = userRepository.save(user);

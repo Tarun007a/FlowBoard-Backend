@@ -27,7 +27,10 @@ public class SecurityConfig {
                 .csrf(c -> c.disable())
                 .authorizeHttpRequests((request) -> {
                     request
-                            .requestMatchers("/api/v1/auth/**").permitAll()
+                            .requestMatchers("/api/v1/auth/**",
+                                    "/swagger-ui/**",
+                                    "/v3/api-docs/**",
+                                    "/api/v1/auth/**").permitAll()
                             .anyRequest().authenticated();
                 })
                 .oauth2Login(oauth -> {

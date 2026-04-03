@@ -9,6 +9,7 @@ import com.flowboard.auth_service.exception.UserNotFoundException;
 import com.flowboard.auth_service.repository.UserRepository;
 import com.flowboard.auth_service.service.UserService;
 import com.flowboard.auth_service.utils.CustomPageResponse;
+import com.flowboard.auth_service.utils.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -23,6 +24,7 @@ import org.springframework.stereotype.Service;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final Mapper<User, UserDto> userResponseMapper;
+    private final SecurityUtils securityUtils;
 
     @Override
     public UserDto getUserByEmail(String email) {
@@ -40,8 +42,16 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto updateProfile(Integer id, UserUpdateDto userUpdateDto) {
+        String email = securityUtils.getLoggedInUserEmail();
+        User loggedUser = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("User not found with email " + email));
+
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User not found with id " + id));
+
+        if(!loggedUser.getUserId().equals(user.getUserId())) {
+            throw new IllegalArgumentException("Same user must be logged in to delete");
+        }
 
         user.setFullName(userUpdateDto.getFullName());
         user.setAvatarUrl(userUpdateDto.getAvatarUrl());
@@ -52,13 +62,19 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public String deleteById(Integer userId) {
-        if(userRepository.existsById(userId)) {
-            userRepository.deleteById(userId);
-            return "User Deleted successfully";
+        String email = securityUtils.getLoggedInUserEmail();
+        User loggedUser = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("User not found with email " + email));
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found with id " + userId));
+
+        if(!loggedUser.getUserId().equals(user.getUserId())) {
+            throw new IllegalArgumentException("Same user must be logged in to delete");
         }
-        else {
-            throw new UserNotFoundException("User with user id " + userId + " does not exist");
-        }
+
+        userRepository.delete(loggedUser);
+        return "User deleted successfully";
     }
 
     @Override
@@ -107,5 +123,23 @@ public class UserServiceImpl implements UserService {
     public User findById(Integer userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User not found with id " + userId));
+    }
+
+    @Override
+    public UserDto updateAvatarUrl(Integer id, String url) {
+        String email = securityUtils.getLoggedInUserEmail();
+        User loggedUser = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("User not found with email " + email));
+
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User not found with id " + id));
+
+        if(!loggedUser.getUserId().equals(user.getUserId())) {
+            throw new IllegalArgumentException("Same user must be logged in to update");
+        }
+
+        user.setAvatarUrl(url);
+        User savedUser = userRepository.save(user);
+        return userResponseMapper.mapTo(savedUser);
     }
 }
