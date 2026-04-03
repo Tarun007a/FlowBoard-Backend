@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.CreationTimestamp;
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;
@@ -18,6 +19,12 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Slf4j
+@Table(
+        indexes = {
+                @Index(name = "idx_email", columnList = "email")
+        }
+)
 public class User implements UserDetails {
 
     @Id
@@ -30,6 +37,9 @@ public class User implements UserDetails {
     @Column(nullable = false, unique = true)
     private String email;
 
+    /* this can be null when using oauth and no one can login to this account as the password
+    can not be null when logging in using username password
+    */
     @Column(nullable = false)
     private String password;
 
@@ -38,9 +48,18 @@ public class User implements UserDetails {
 
     private String avatarUrl;
 
+    @Enumerated(EnumType.STRING)
     private PROVIDER provider = PROVIDER.MANUAL;
 
-    private boolean isActive = true;
+    /* Default value is false so when user signup account is disabled and will be
+       enabled by after verification of email
+     */
+    private boolean isActive = false;
+
+    public void setActive(boolean isActive) {
+        log.info("Is active " + isActive);
+        this.isActive = isActive;
+    }
 
     @CreationTimestamp
     private LocalDateTime createdAt;
