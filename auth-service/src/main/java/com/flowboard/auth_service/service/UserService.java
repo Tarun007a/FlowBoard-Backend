@@ -21,5 +21,7 @@ public interface UserService {
 
     User findById(Integer userId);
 
-    UserDto updateAvatarUrl(Integer id, String url);
+    public UserDto updateAvatarUrl(Integer id, String url);
+
+    public String getEmailById(Integer id);
 }

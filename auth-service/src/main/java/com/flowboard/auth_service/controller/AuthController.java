@@ -5,6 +5,7 @@ import com.flowboard.auth_service.dto.LoginDto;
 import com.flowboard.auth_service.dto.SignupDto;
 import com.flowboard.auth_service.dto.UserDto;
 import com.flowboard.auth_service.service.AuthService;
+import com.flowboard.auth_service.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Auth Controller", description = "Authentication related APIs")
 public class AuthController {
     private final AuthService authService;
+    private final UserService userService;
 
     @Operation(summary = "Signup user", description = "Registers a new user")
     @ApiResponse(responseCode = "201", description = "User registered successfully")
@@ -60,5 +62,14 @@ public class AuthController {
     public ResponseEntity<String> forgetPassword(@Valid @RequestBody ForgetPasswordDto forgetPasswordDto) {
         authService.changePassword(forgetPasswordDto);
         return ResponseEntity.ok().body("Password changed successfully");
+    }
+
+    @Operation(summary = "Get email of user by id",
+            description = "Used by notification service to get mail of user to send notification email")
+    @ApiResponse(responseCode = "200", description = "Returns email of user with given id")
+    @GetMapping("/users/email/{id}")
+    public ResponseEntity<String> getUserEmail(@PathVariable Integer id) {
+        String email = userService.getEmailById(id);
+        return ResponseEntity.ok(email);
     }
 }

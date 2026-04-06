@@ -142,4 +142,11 @@ public class UserServiceImpl implements UserService {
         User savedUser = userRepository.save(user);
         return userResponseMapper.mapTo(savedUser);
     }
+
+    @Override
+    public String getEmailById(Integer id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User not found with id " + id));
+        return user.getEmail();
+    }
 }
