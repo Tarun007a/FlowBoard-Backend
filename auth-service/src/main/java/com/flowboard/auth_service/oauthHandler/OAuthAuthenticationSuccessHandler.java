@@ -19,6 +19,7 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.Optional;
 import java.util.UUID;
 
 @Component
@@ -43,7 +44,9 @@ public class OAuthAuthenticationSuccessHandler implements AuthenticationSuccessH
 
         log.info("OAuth google login successful " + email + " " + name);
 
-        if(!userRepo.existsByEmail(email)) {
+        Optional<User> userOptional = userRepo.findByEmail(email);
+        Integer userId = null;
+        if(userOptional.isEmpty()) {
             User user = new User();
             user.setEmail(email);
             user.setFullName(name);
@@ -51,10 +54,12 @@ public class OAuthAuthenticationSuccessHandler implements AuthenticationSuccessH
             user.setAvatarUrl(avatarUrl);
             user.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
             userRepo.save(user);
+            userId = user.getUserId();
         }
+        else userId = userOptional.get().getUserId();
 
         UserDetails userDetails = userDetailsService.loadUserByUsername(email);
-        String token = jwtService.generateToken(email);
+        String token = jwtService.generateToken(email, "USER", userId);
 
         String jsonResponse = String.format(
                 "{\"token\": \"%s\", \"email\": \"%s\"}", token, email

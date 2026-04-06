@@ -26,12 +26,7 @@ public class SecurityConfig {
         return http
                 .csrf(c -> c.disable())
                 .authorizeHttpRequests((request) -> {
-                    request
-                            .requestMatchers(
-                                    "/swagger-ui/**",
-                                    "/v3/api-docs/**",
-                                    "/api/v1/auth/**").permitAll()
-                            .anyRequest().authenticated();
+                    request.anyRequest().permitAll();
                 })
                 .oauth2Login(oauth -> {
                     oauth.successHandler(authenticationSuccessHandler);

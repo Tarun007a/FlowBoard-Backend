@@ -23,7 +23,7 @@ public class UserController {
 
     @Operation(summary = "Get user by email")
     @ApiResponse(responseCode = "200", description = "User fetched successfully")
-    @GetMapping("/email/{email}")
+    @GetMapping("/user-email/{email}")
     public ResponseEntity<UserDto> handelFindByEmail(@PathVariable String email) {
         return ResponseEntity.ok().body(userService.getUserByEmail(email));
     }
@@ -38,8 +38,8 @@ public class UserController {
     @Operation(summary = "Delete user")
     @ApiResponse(responseCode = "200", description = "User deleted successfully")
     @DeleteMapping("/delete/{userId}")
-    public ResponseEntity<String> handelDeleteById(@PathVariable Integer userId) {
-        return ResponseEntity.ok().body(userService.deleteById(userId));
+    public ResponseEntity<String> handelDeleteById(@PathVariable Integer userId, @RequestHeader("X-User-Id") Integer loggedInUserId) {
+        return ResponseEntity.ok().body(userService.deleteById(userId, loggedInUserId));
     }
 
     @Operation(summary = "Full user update")
@@ -63,6 +63,7 @@ public class UserController {
      */
     @Operation(summary = "Get users by role with pagination")
     @GetMapping("/role/{role}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<CustomPageResponse<UserDto>> handleGetUserByRole(@PathVariable String role,
                                                                            @RequestParam(value = "sortBy", defaultValue = AppConstants.sortBy) String sortBy,
                                                                            @RequestParam(value = "direction", defaultValue = AppConstants.direction) String direction,
@@ -82,5 +83,14 @@ public class UserController {
                                                                                 @RequestParam(value = "page", defaultValue = AppConstants.page) int page,
                                                                                 @RequestParam(value = "size", defaultValue = AppConstants.size) int size) {
         return ResponseEntity.ok().body(userService.searchByFullName(fullName, page, size, sortBy, direction));
+    }
+
+    @Operation(summary = "Get email of user by id",
+            description = "Used by notification service to get mail of user to send notification email")
+    @ApiResponse(responseCode = "200", description = "Returns email of user with given id")
+    @GetMapping("/email/{id}")
+    public ResponseEntity<String> getUserEmail(@PathVariable Integer id) {
+        String email = userService.getEmailById(id);
+        return ResponseEntity.ok(email);
     }
 }

@@ -14,7 +14,7 @@ public interface UserService {
 
     public void deactivateAccount(Integer id);
 
-    public String deleteById(Integer userId);
+    public String deleteById(Integer userId, Integer loggedUserId);
     public CustomPageResponse<UserDto> findAllByRole(String roleStr, int page, int size, String sortBy, String direction);
 
     public CustomPageResponse<UserDto> searchByFullName(String fullName, int page, int size, String sortBy, String direction);

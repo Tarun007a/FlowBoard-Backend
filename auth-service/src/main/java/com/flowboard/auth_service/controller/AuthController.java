@@ -63,13 +63,4 @@ public class AuthController {
         authService.changePassword(forgetPasswordDto);
         return ResponseEntity.ok().body("Password changed successfully");
     }
-
-    @Operation(summary = "Get email of user by id",
-            description = "Used by notification service to get mail of user to send notification email")
-    @ApiResponse(responseCode = "200", description = "Returns email of user with given id")
-    @GetMapping("/users/email/{id}")
-    public ResponseEntity<String> getUserEmail(@PathVariable Integer id) {
-        String email = userService.getEmailById(id);
-        return ResponseEntity.ok(email);
-    }
 }

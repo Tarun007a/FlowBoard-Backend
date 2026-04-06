@@ -61,19 +61,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public String deleteById(Integer userId) {
-        String email = securityUtils.getLoggedInUserEmail();
-        User loggedUser = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException("User not found with email " + email));
-
+    public String deleteById(Integer userId, Integer loggedUserId) {
+        if(!userId.equals(loggedUserId)) throw new UserNotFoundException("Same user must be logged in to delete");
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User not found with id " + userId));
 
-        if(!loggedUser.getUserId().equals(user.getUserId())) {
-            throw new IllegalArgumentException("Same user must be logged in to delete");
-        }
-
-        userRepository.delete(loggedUser);
+        userRepository.delete(user);
         return "User deleted successfully";
     }
 

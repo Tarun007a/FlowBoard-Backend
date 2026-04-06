@@ -3,6 +3,7 @@ package com.flowboard.auth_service.service.impl;
 import com.flowboard.auth_service.service.JwtService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,53 +23,15 @@ public class JwtServiceImpl implements JwtService {
     private String secretKey;
 
     private SecretKey getKey(){
-        byte[] keyBytes = Base64.getDecoder().decode(secretKey);
-        return Keys.hmacShaKeyFor(keyBytes);
+        return Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey));
     }
 
     @Override
-    public boolean validateToken(String token, UserDetails userDetails) {
-        final String username = extractUserName(token);
-        return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
-    }
-
-    private boolean isTokenExpired(String token) {
-        try {
-            return extractExpiration(token).before(new Date());
-        }
-        catch (Exception e){
-            throw new AccessDeniedException("Expired token");
-        }
-    }
-
-    private Date extractExpiration(String token) {
-        final Claims claims = extractAllClaims(token);
-        return claims.getExpiration();
-    }
-
-    @Override
-    public String extractUserName(String token) {
-        final Claims claims = extractAllClaims(token);
-        return claims.getSubject();
-    }
-
-    private Claims extractAllClaims(String token) {
-        try {
-            return Jwts.parser()
-                    .verifyWith(getKey())
-                    .build()
-                    .parseSignedClaims(token)
-                    .getPayload();
-        }
-        catch (Exception e){
-            throw new AccessDeniedException("Invalid token");
-        }
-    }
-
-    @Override
-    public String generateToken(String username) {
+    public String generateToken(String username, String role, Integer userId) {
         return Jwts.builder()
                 .subject(username)
+                .claim("role", role)
+                .claim("userId", userId)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + 1000*60*60*24))
                 .signWith(getKey())
