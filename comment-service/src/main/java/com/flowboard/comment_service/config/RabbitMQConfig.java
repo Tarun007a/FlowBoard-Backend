@@ -54,7 +54,7 @@ public class RabbitMQConfig {
      byte arrays and then you have to manually serialize and deserialize them.
      */
     @Bean
-    public MessageConverter jsonMessageConverter() {
+    public MessageConverter jsonMessageConverter()   {
         return new Jackson2JsonMessageConverter();
     }
 }

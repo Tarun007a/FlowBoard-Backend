@@ -20,7 +20,14 @@ public class AttachmentController {
 
     @PostMapping("/upload")
     public ResponseEntity<AttachmentResponseDto> upload(@RequestParam("file") MultipartFile file,
-                                                        @Valid @RequestBody AttachmentRequestDto attachmentRequestDto) {
+                                                        @RequestParam Integer cardId,
+                                                        @RequestParam Integer uploaderId) {
+        AttachmentRequestDto attachmentRequestDto = AttachmentRequestDto
+                .builder()
+                .cardId(cardId)
+                .uploaderId(uploaderId)
+                .build();
+
         return ResponseEntity.status(HttpStatus.OK)
                 .body(attachmentService.uploadAttachment(file, attachmentRequestDto));
     }
@@ -31,8 +38,8 @@ public class AttachmentController {
                 .body(attachmentService.getAttachmentsByCard(cardId));
     }
 
-    @DeleteMapping("/{attachmentId}")
-    public ResponseEntity<String> delete(@PathVariable Long attachmentId) {
+    @DeleteMapping("/delete/{attachmentId}")
+    public ResponseEntity<String> delete(@PathVariable Integer attachmentId) {
         attachmentService.deleteAttachment(attachmentId);
         return ResponseEntity.status(HttpStatus.OK).body("Attachment deleted");
     }

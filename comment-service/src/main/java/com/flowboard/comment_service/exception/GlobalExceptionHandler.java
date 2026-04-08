@@ -16,8 +16,15 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(ex.getMessage());
     }
 
+    @ExceptionHandler(AttachmentNotFoundException.class)
+    public ResponseEntity<String> handelAttachmentNotException(AttachmentNotFoundException ex) {
+        return ResponseEntity.badRequest().body(ex.getMessage());
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handelAllException(Exception ex) {
         return ResponseEntity.badRequest().body(ex.getMessage());
     }
+
+
 }

@@ -40,3 +40,8 @@ rabbitmq:
     name: notification-queue
   routing:
     key: notification-key
+
+cloudinary:
+  cloud-name: ${cloudinary-cloud-name}
+  api-key: ${cloudinary-api-key}
+  api-secret: ${cloudinary-api-secret}

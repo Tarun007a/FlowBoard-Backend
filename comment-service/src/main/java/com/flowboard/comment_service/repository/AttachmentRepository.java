@@ -7,10 +7,10 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface AttachmentRepository extends JpaRepository<Attachment, Long> {
-    List<Attachment> findByCardId(Long cardId);
+public interface AttachmentRepository extends JpaRepository<Attachment, Integer> {
+    List<Attachment> findByCardId(Integer cardId);
 
-    Optional<Attachment> findByAttachmentId(Long attachmentId);
+    Optional<Attachment> findByAttachmentId(Integer attachmentId);
 
-    void deleteByAttachmentId(Long attachmentId);
+    void deleteByAttachmentId(Integer attachmentId);
 }

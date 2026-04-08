@@ -25,6 +25,7 @@ public class Attachment {
 
     private String fileName;
     private String fileUrl;
+    private String publicId;
     private String fileType;
 
     private Long sizeKb;

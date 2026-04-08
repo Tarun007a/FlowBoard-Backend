@@ -28,6 +28,10 @@ spring:
           predicates:
             - Path=/api/v1/comments/**
 
+        - id: attachment-service
+          uri: lb://COMMENT-SERVICE
+          predicates:
+            - Path=/api/v1/attachments/**
 eureka:
   client:
     service-url:
