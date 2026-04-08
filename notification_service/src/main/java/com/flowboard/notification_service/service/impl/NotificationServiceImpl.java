@@ -40,6 +40,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public NotificationResponseDto send(NotificationRequestDto notificationRequestDto) {
         Notification notification = notificationRequestMapper.mapTo(notificationRequestDto);
+        log.info(notification.toString());
 
         // here notification service will call auth service to get the mail of user
         // by the given id

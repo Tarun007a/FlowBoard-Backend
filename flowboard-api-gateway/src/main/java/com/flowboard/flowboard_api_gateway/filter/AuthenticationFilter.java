@@ -43,7 +43,7 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
         }
 
         String token = authHeader.substring(7);
-        log.info("Token found validating token" + token);
+//        log.info("Token found validating token" + token);
 
         if (!jwtUtil.isTokenValid(token)) {
             return onError(exchange, "Invalid Token", HttpStatus.UNAUTHORIZED);
@@ -67,7 +67,7 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
         return chain.filter(modifiedExchange);
     }
 
-        private Mono<Void> onError(ServerWebExchange exchange, String err, HttpStatus status) {
+    private Mono<Void> onError(ServerWebExchange exchange, String err, HttpStatus status) {
         log.info("Invalid token");
         exchange.getResponse().setStatusCode(status);
         return exchange.getResponse().setComplete();

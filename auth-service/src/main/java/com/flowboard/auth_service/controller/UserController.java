@@ -14,6 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/user")
@@ -92,5 +94,10 @@ public class UserController {
     public ResponseEntity<String> getUserEmail(@PathVariable Integer id) {
         String email = userService.getEmailById(id);
         return ResponseEntity.ok(email);
+    }
+
+    @GetMapping("/findAll")
+    public List<Integer> getUserIdsByUsername(@RequestParam List<String> userEmailList) {
+        return userService.findAllUserIdByEmail(userEmailList);
     }
 }

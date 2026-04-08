@@ -23,6 +23,11 @@ spring:
           predicates:
             - Path=/api/v1/notifications/**
 
+        - id: comment-service
+          uri: lb://COMMENT-SERVICE
+          predicates:
+            - Path=/api/v1/comments/**
+
 eureka:
   client:
     service-url:
@@ -34,7 +39,7 @@ eureka:
 
 security:
   jwt:
-    secret: bXktc3VwZXItc2VjcmV0LWtleS13aGljaC1pcy1hdC1sZWFzdC0zMi1jaGFycw==
+    secret: ${jwt-secret-key}
 
 
 

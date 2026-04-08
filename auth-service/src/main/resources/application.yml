@@ -24,7 +24,7 @@ spring:
 
 security:
   jwt:
-    secret: bXktc3VwZXItc2VjcmV0LWtleS13aGljaC1pcy1hdC1sZWFzdC0zMi1jaGFycw==
+    secret: ${jwt-secret-key}
 
 brevo:
   api-key: ${brevo-api-key}

@@ -5,6 +5,8 @@ import com.flowboard.auth_service.dto.UserUpdateDto;
 import com.flowboard.auth_service.entity.User;
 import com.flowboard.auth_service.utils.CustomPageResponse;
 
+import java.util.List;
+
 public interface UserService {
     public UserDto getUserByEmail(String email);
 
@@ -24,4 +26,6 @@ public interface UserService {
     public UserDto updateAvatarUrl(Integer id, String url);
 
     public String getEmailById(Integer id);
+
+    List<Integer> findAllUserIdByEmail(List<String> userEmailList);
 }

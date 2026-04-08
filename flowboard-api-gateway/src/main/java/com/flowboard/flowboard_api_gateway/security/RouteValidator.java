@@ -14,6 +14,10 @@ public class RouteValidator {
             "/api/v1/auth/forget"
     );
     public Predicate<String> isSecured =
-            uri -> openApiEndpoints.stream()
-                    .noneMatch(uri::startsWith);
+            uri -> {
+                for(String endpoint : openApiEndpoints) {
+                    if(uri.startsWith(endpoint)) return false;
+                }
+                return true;
+            };
 }

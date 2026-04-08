@@ -1,6 +1,7 @@
 package com.flowboard.flowboard_api_gateway.security;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -8,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
+import java.util.Date;
 
 @Component
 public class JwtUtil {
@@ -39,9 +41,22 @@ public class JwtUtil {
         return extractAllClaims(token).get("userId", Integer.class);
     }
 
+    public Date extractExpiration(String token) {
+        return extractAllClaims(token).getExpiration();
+    }
+
+    private void validateTokenNotExpired(String token) {
+        Date expirationDate = extractExpiration(token);
+        Date now = new Date();
+        if(expirationDate.before(now)) {
+            throw new JwtException("Token expired!");
+        }
+    }
+
     public boolean isTokenValid(String token) {
         try {
             extractAllClaims(token);
+            validateTokenNotExpired(token);
             return true;
         }
         catch (Exception e) {

@@ -17,6 +17,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -141,5 +144,18 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User not found with id " + id));
         return user.getEmail();
+    }
+
+    @Override
+    public List<Integer> findAllUserIdByEmail(List<String> userEmailList) {
+        log.info("Find user id called for " + userEmailList.toString());
+        List<Integer> result = new ArrayList<>();
+        userEmailList.stream()
+                .forEach(email -> {
+                    Optional<User> userOptional = userRepository.findByEmail(email);
+                    if(userOptional.isPresent()) result.add(userOptional.get().getUserId());
+                });
+        log.info(result.toString());
+        return result;
     }
 }
