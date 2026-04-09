@@ -57,4 +57,21 @@ public class WorkspaceController {
         Integer ownerId = getUserId(request);
         return ResponseEntity.ok(workspaceService.getMyWorkspaces(ownerId, page, size, by, direction));
     }
+
+    /*
+    This is for inter service communication, board service uses this
+     */
+    @GetMapping("/owner/{id}")
+    public Integer handleGetOwnerId(@PathVariable Integer id) {
+        return workspaceService.getOwenerId(id);
+    }
+
+    @GetMapping("/public")
+    public ResponseEntity<CustomPageResponse<WorkspaceResponseDto>> handleGetPublicWorkspace(
+            @RequestParam(value = "page", defaultValue = AppConstants.page) int page,
+            @RequestParam(value = "size", defaultValue = AppConstants.size) int size,
+            @RequestParam(name = "sort", defaultValue = AppConstants.sortForWorkspace) String by,
+            @RequestParam(name = "direction", defaultValue = AppConstants.direction) String direction) {
+        return ResponseEntity.ok(workspaceService.getPublicWorkspace(page, size, by, direction));
+    }
 }

@@ -2,6 +2,7 @@ package com.flowboard.workspace_service.service.impl;
 
 import com.flowboard.workspace_service.dto.WorkspaceRequestDto;
 import com.flowboard.workspace_service.dto.WorkspaceResponseDto;
+import com.flowboard.workspace_service.entity.Visibility;
 import com.flowboard.workspace_service.entity.Workspace;
 import com.flowboard.workspace_service.entity.WorkspaceMember;
 import com.flowboard.workspace_service.exception.IllegalOperationException;
@@ -97,8 +98,28 @@ public class WorkspaceServiceImpl implements WorkspaceService {
         }
     }
 
+    @Override
+    public CustomPageResponse<WorkspaceResponseDto> getPublicWorkspace(int page, int size, String by, String direction) {
+        Sort sort;
+        if(direction.equals("asc")) sort = Sort.by(by).ascending();
+        else sort = Sort.by(by).descending();
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Page<Workspace> workspacePage = workspaceRepository.findByVisibility(Visibility.PUBLIC, pageable);
+        Page<WorkspaceResponseDto> workspaceResponseDtoPage = workspacePage
+                .map(workspaceResponseMapper::mapTo);
+
+        return new CustomPageResponse<>(workspaceResponseDtoPage);
+    }
+
     private Workspace getWorkspace(Integer id) {
         return workspaceRepository.findById(id)
                 .orElseThrow(() -> new WorkspaceNotFoundException("Workspace not found with id " + id.toString()));
+    }
+
+    @Override
+    public Integer getOwenerId(Integer id) {
+        return getWorkspace(id).getOwnerId();
     }
 }

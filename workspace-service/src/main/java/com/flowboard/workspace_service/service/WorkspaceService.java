@@ -17,4 +17,8 @@ public interface WorkspaceService {
                                                                     Integer size,
                                                                     String by,
                                                                     String direction);
+
+    public Integer getOwenerId(Integer id);
+
+    public CustomPageResponse<WorkspaceResponseDto> getPublicWorkspace(int page, int size, String by, String direction);
 }
