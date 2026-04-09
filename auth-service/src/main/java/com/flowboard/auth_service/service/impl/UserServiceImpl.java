@@ -84,10 +84,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public CustomPageResponse<UserDto> findAllByRole(String roleStr, int page, int size, String sortBy, String direction) {
         ROLE role = ROLE.valueOf(roleStr);
-        Sort sort = Sort.by(sortBy);
 
-        if(direction.equals("asc")) sort = sort.ascending();
-        else sort = sort.descending();
+        Sort sort;
+        if(direction.equals("asc")) sort = Sort.by(sortBy).ascending();
+        else sort = Sort.by(sortBy).descending();
 
         Pageable pageable = PageRequest.of(page, size, sort);
 
@@ -102,10 +102,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public CustomPageResponse<UserDto> searchByFullName(String fullName, int page, int size, String sortBy, String direction) {
-        Sort sort = Sort.by(sortBy);
-
-        if(direction.equals("asc")) sort = sort.ascending();
-        else sort = sort.descending();
+        Sort sort;
+        if(direction.equals("asc")) sort = Sort.by(sortBy).ascending();
+        else sort = Sort.by(sortBy).descending();
 
         Pageable pageable = PageRequest.of(page, size, sort);
 

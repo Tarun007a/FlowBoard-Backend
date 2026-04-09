@@ -55,6 +55,11 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
         Integer userId = jwtUtil.extractUserId(token);
 
         // Add headers to downstream services
+        /*
+        Yes the user can pass the header here if the user tries to send any other user's
+        id then jwt will override it with the user id which is in payload of jwt token
+        and if the token is wrong then user will be not allowed
+         */
         ServerWebExchange modifiedExchange = exchange.mutate()
                 .request(builder -> builder
                         .header("X-User-Name", username)

@@ -32,6 +32,11 @@ spring:
           uri: lb://COMMENT-SERVICE
           predicates:
             - Path=/api/v1/attachments/**
+
+        - id: workspace-service
+          uri: lb://WORKSPACE-SERVICE
+          predicates:
+            - Path=/api/v1/workspaces/**
 eureka:
   client:
     service-url:

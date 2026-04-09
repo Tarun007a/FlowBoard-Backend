@@ -51,10 +51,9 @@ public class CommentServiceImpl implements CommentService {
                                                            int size,
                                                            String sortBy,
                                                            String direction) {
-        Sort sort = Sort.by(sortBy);
-
-        if(direction.equals("asc")) sort.ascending();
-        else sort.descending();
+        Sort sort;
+        if(direction.equals("asc")) sort = Sort.by(sortBy).ascending();
+        else sort = Sort.by(sortBy).descending();
 
         Pageable pageable = PageRequest.of(page, size, sort);
 
@@ -80,10 +79,9 @@ public class CommentServiceImpl implements CommentService {
                                                              int size,
                                                              String sortBy,
                                                              String direction) {
-        Sort sort = Sort.by(sortBy);
-
-        if(direction.equals("asc")) sort.ascending();
-        else sort.descending();
+        Sort sort;
+        if(direction.equals("asc")) sort = Sort.by(sortBy).ascending();
+        else sort = Sort.by(sortBy).descending();
 
         Pageable pageable = PageRequest.of(page, size, sort);
 
