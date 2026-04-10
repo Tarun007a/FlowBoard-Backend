@@ -2,6 +2,7 @@ package com.flowboard.board_service.service;
 
 import com.flowboard.board_service.dto.BoardMemberRequestDto;
 import com.flowboard.board_service.dto.BoardMemberResponseDto;
+import com.flowboard.board_service.dto.UserDto;
 import com.flowboard.board_service.util.CustomPageResponse;
 
 public interface BoardMemberService {
@@ -10,7 +11,7 @@ public interface BoardMemberService {
 
     public void removeMember(Integer boardId, Integer memberUserId, Integer userId);
 
-    public CustomPageResponse<BoardMemberResponseDto> getMembers(
+    public CustomPageResponse<UserDto> getMembers(
             Integer boardId,
             Integer userId,
             Integer page,

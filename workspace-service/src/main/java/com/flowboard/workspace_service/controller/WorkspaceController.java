@@ -7,6 +7,7 @@ import com.flowboard.workspace_service.util.AppConstants;
 import com.flowboard.workspace_service.util.CustomPageResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import jakarta.ws.rs.Path;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -73,5 +74,16 @@ public class WorkspaceController {
             @RequestParam(name = "sort", defaultValue = AppConstants.sortForWorkspace) String by,
             @RequestParam(name = "direction", defaultValue = AppConstants.direction) String direction) {
         return ResponseEntity.ok(workspaceService.getPublicWorkspace(page, size, by, direction));
+    }
+
+    @GetMapping("/{workspaceId}/member/{memberId}")
+    public Boolean handleIsMember(@PathVariable Integer workspaceId,
+                                  @PathVariable Integer memberId) {
+        return workspaceService.isMember(workspaceId, memberId);
+    }
+
+    @GetMapping("/private/{workspaceId}")
+    public Boolean handleIsPrivate(@PathVariable Integer workspaceId) {
+        return workspaceService.isPrivate(workspaceId);
     }
 }

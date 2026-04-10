@@ -10,6 +10,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 
+/*
+Not using this as using rabbit mq for async communication
+ */
 @FeignClient(name = "NOTIFICATION-SERVICE")
 public interface NotificationClient {
     @PostMapping("/api/v1/notifications/bulk")

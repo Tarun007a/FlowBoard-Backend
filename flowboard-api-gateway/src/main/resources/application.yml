@@ -37,6 +37,16 @@ spring:
           uri: lb://WORKSPACE-SERVICE
           predicates:
             - Path=/api/v1/workspaces/**
+
+        - id: board-service
+          uri: lb://BOARD-SERVICE
+          predicates:
+            - Path=/api/v1/boards/**
+
+        - id: board-member-service
+          uri: lb://BOARD-SERVICE
+          predicates:
+            - Path=/api/v1/board-members/**
 eureka:
   client:
     service-url:

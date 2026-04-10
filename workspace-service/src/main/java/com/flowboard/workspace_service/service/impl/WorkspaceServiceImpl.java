@@ -122,4 +122,14 @@ public class WorkspaceServiceImpl implements WorkspaceService {
     public Integer getOwenerId(Integer id) {
         return getWorkspace(id).getOwnerId();
     }
+
+    @Override
+    public Boolean isMember(Integer workspaceId, Integer memberId) {
+        return workspaceMemberRepository.existsByWorkspaceIdAndUserId(workspaceId, memberId);
+    }
+
+    @Override
+    public Boolean isPrivate(Integer workspaceId) {
+        return getWorkspace(workspaceId).getVisibility().equals(Visibility.PRIVATE);
+    }
 }

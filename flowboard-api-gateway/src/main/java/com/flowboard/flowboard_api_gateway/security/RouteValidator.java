@@ -12,7 +12,8 @@ public class RouteValidator {
             "/api/v1/auth/verify",
             "/api/v1/auth/sendotp",
             "/api/v1/auth/forget",
-            "/api/v1/workspaces/public"
+            "/api/v1/workspaces/public",
+            "/api/v1/boards/get/workspace/"
     );
     public Predicate<String> isSecured =
             uri -> {

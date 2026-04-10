@@ -1,5 +1,6 @@
 package com.flowboard.board_service.util;
 
+import com.flowboard.board_service.dto.UserDto;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -25,6 +26,17 @@ public class CustomPageResponse<T> {
         this.setTotalPages(page.getTotalPages());
         this.setTotalNumberOfElements(page.getTotalElements());
         this.setContent(page.getContent());
+        this.setLast(page.isLast());
+        this.setFirst(page.isFirst());
+    }
+
+    public CustomPageResponse(Page<Integer> page, List<T> userDtos) {
+        this.setPageSize(page.getSize());
+        this.setPageNumber(page.getNumber());
+        this.setNumberOfElements(page.getNumberOfElements());
+        this.setTotalPages(page.getTotalPages());
+        this.setTotalNumberOfElements(page.getTotalElements());
+        this.setContent(userDtos);
         this.setLast(page.isLast());
         this.setFirst(page.isFirst());
     }

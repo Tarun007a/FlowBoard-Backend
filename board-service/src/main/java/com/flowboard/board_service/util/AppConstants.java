@@ -5,9 +5,9 @@ public class AppConstants {
 
     public static final String size = "10";
 
-    public static final String sortForBoard = "workspaceId";
+    public static final String sortBoard = "boardId";
 
-    public static final String sortForBoardMember = "memberId";
+    public static final String sortMember = "boardMemberId";
 
     public static final String direction = "asc";
 }

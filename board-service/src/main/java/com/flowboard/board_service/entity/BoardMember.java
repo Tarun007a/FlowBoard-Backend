@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 )
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class BoardMember {
@@ -30,9 +31,10 @@ public class BoardMember {
     /*
     Not using for now but each member of a board have 3 different role
     here @Column(nullable=false) is not used as we are not working with this now
+    and default role is set to member
      */
     @Enumerated(EnumType.STRING)
-    private BoardRole role;
+    private BoardRole role = BoardRole.MEMBER;
 
     @CreationTimestamp
     private LocalDateTime addedAt;

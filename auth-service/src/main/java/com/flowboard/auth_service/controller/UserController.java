@@ -2,6 +2,7 @@ package com.flowboard.auth_service.controller;
 
 import com.flowboard.auth_service.dto.UserDto;
 import com.flowboard.auth_service.dto.UserUpdateDto;
+import com.flowboard.auth_service.entity.User;
 import com.flowboard.auth_service.service.UserService;
 import com.flowboard.auth_service.utils.AppConstants;
 import com.flowboard.auth_service.utils.CustomPageResponse;
@@ -85,6 +86,14 @@ public class UserController {
                                                                                 @RequestParam(value = "page", defaultValue = AppConstants.page) int page,
                                                                                 @RequestParam(value = "size", defaultValue = AppConstants.size) int size) {
         return ResponseEntity.ok().body(userService.searchByFullName(fullName, page, size, sortBy, direction));
+    }
+
+    /*
+        This will be called by board service to get UserResponseDto from userId
+    */
+    @GetMapping("/bulk")
+    public List<UserDto> getUserBulk(@RequestParam List<Integer> userIds) {
+        return userService.getBulkUser(userIds);
     }
 
     @Operation(summary = "Get email of user by id",

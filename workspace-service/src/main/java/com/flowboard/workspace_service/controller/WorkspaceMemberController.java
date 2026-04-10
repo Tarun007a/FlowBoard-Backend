@@ -26,7 +26,7 @@ public class WorkspaceMemberController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<WorkspaceMemberResponseDto> handleAddMember(@RequestBody @Valid WorkspaceMemberRequestDto workspaceMemberRequestDto,
+    public ResponseEntity<WorkspaceMemberResponseDto> addMember(@RequestBody @Valid WorkspaceMemberRequestDto workspaceMemberRequestDto,
                                                                 HttpServletRequest request) {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(memberService.addMember(workspaceMemberRequestDto, getUserId(request)));

@@ -21,4 +21,8 @@ public interface WorkspaceService {
     public Integer getOwenerId(Integer id);
 
     public CustomPageResponse<WorkspaceResponseDto> getPublicWorkspace(int page, int size, String by, String direction);
+
+    public Boolean isMember(Integer workspaceId, Integer memberId);
+
+    public Boolean isPrivate(Integer workspaceId);
 }

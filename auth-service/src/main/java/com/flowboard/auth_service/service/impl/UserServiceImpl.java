@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -156,5 +157,14 @@ public class UserServiceImpl implements UserService {
                 });
         log.info(result.toString());
         return result;
+    }
+
+    @Override
+    public List<UserDto> getBulkUser(List<Integer> userIds) {
+        List<User> users = userRepository.findAllByUserIdIn(userIds);
+        return users
+                .stream()
+                .map(userResponseMapper::mapTo)
+                .collect(Collectors.toList());
     }
 }

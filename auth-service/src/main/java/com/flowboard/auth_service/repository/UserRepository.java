@@ -21,4 +21,9 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 
     public Page<User> searchByFullName(String fullName, Pageable pageable);
 
+    /*
+    Here we need to use In to check weather the id in list and if the id is in the return
+    the user entity
+     */
+    List<User> findAllByUserIdIn(List<Integer> userIds);
 }

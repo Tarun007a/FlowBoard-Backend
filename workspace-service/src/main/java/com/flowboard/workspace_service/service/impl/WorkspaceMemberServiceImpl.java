@@ -31,8 +31,8 @@ public class WorkspaceMemberServiceImpl implements WorkspaceMemberService {
     private final Mapper<WorkspaceMember, WorkspaceMemberResponseDto> workspaceMemberResponseMapper;
 
     @Override
-    public WorkspaceMemberResponseDto addMember(WorkspaceMemberRequestDto workspaceMemberRequestDto, Integer ownerId) {
-        validateAccess(workspaceMemberRequestDto.getWorkspaceId(), ownerId);
+    public WorkspaceMemberResponseDto addMember(WorkspaceMemberRequestDto workspaceMemberRequestDto, Integer loggedUseId) {
+        validateAccess(workspaceMemberRequestDto.getWorkspaceId(), loggedUseId);
 
         Integer workspaceId = workspaceMemberRequestDto.getWorkspaceId();
         Integer userId = workspaceMemberRequestDto.getUserId();
@@ -49,8 +49,8 @@ public class WorkspaceMemberServiceImpl implements WorkspaceMemberService {
 
     @Override
     @Transactional
-    public void removeMember(Integer workspaceId, Integer userId, Integer ownerId) {
-        validateAccess(workspaceId, ownerId);
+    public void removeMember(Integer workspaceId, Integer userId, Integer loggedUseId) {
+        validateAccess(workspaceId, loggedUseId);
 
         if(!workspaceMemberRepository.existsByWorkspaceIdAndUserId(workspaceId, userId)) {
             throw new WorkspaceMemberNotFoundException("No member found with workspace id " + workspaceId + " user id as " + userId);
@@ -61,12 +61,12 @@ public class WorkspaceMemberServiceImpl implements WorkspaceMemberService {
 
     @Override
     public CustomPageResponse<WorkspaceMemberResponseDto> getMembers(Integer workspaceId,
-                                                                     Integer userId,
+                                                                     Integer loggedUseId,
                                                                      Integer page,
                                                                      Integer size,
                                                                      String by,
                                                                      String direction) {
-        validateAccess(workspaceId, userId);
+        validateAccess(workspaceId, loggedUseId);
 
         Sort sort;
         if(direction.equals("asc")) sort = Sort.by(by).ascending();
@@ -84,6 +84,7 @@ public class WorkspaceMemberServiceImpl implements WorkspaceMemberService {
     }
 
     private void validateAccess(Integer workspaceId, Integer userId) {
+        log.info("Validating userId " + userId);
         Workspace workspace = getWorkspace(workspaceId);
         if(!workspace.getOwnerId().equals(userId)) {
             throw new IllegalOperationException("You are not allowed to make changes in this workspace");

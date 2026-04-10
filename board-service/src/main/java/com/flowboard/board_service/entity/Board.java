@@ -31,6 +31,7 @@ public class Board {
     private String background;
 
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private Visibility visibility;
 
     @Column(nullable = false)

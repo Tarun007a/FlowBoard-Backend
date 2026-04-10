@@ -28,5 +28,7 @@ public interface UserService {
 
     public String getEmailById(Integer id);
 
-    List<Integer> findAllUserIdByEmail(List<String> userEmailList);
+    public List<Integer> findAllUserIdByEmail(List<String> userEmailList);
+
+    public List<UserDto> getBulkUser(List<Integer> userIds);
 }
