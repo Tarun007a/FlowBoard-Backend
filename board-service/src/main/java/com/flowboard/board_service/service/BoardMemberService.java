@@ -4,6 +4,7 @@ import com.flowboard.board_service.dto.BoardMemberRequestDto;
 import com.flowboard.board_service.dto.BoardMemberResponseDto;
 import com.flowboard.board_service.dto.UserDto;
 import com.flowboard.board_service.util.CustomPageResponse;
+import org.apache.hc.core5.annotation.Internal;
 
 public interface BoardMemberService {
 
@@ -19,4 +20,6 @@ public interface BoardMemberService {
             String sort,
             String direction
     );
+
+    public Boolean checkIsMember(Integer boardId, Integer userId);
 }

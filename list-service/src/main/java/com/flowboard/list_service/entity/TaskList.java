@@ -10,6 +10,12 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @Setter
+@Table(
+        indexes = {
+                @Index(name = "idx_board_id", columnList = "boardId"),
+                @Index(name = "idx_board_position", columnList = "boardId, position")
+        }
+)
 @NoArgsConstructor
 @AllArgsConstructor
 public class TaskList {
@@ -18,13 +24,13 @@ public class TaskList {
     private Integer listId;
 
     @Column(nullable = false)
-    private String boardId;
+    private Integer boardId;
 
     @Column(nullable = false)
     private String name;
 
     /**
-     * Used for ordering lists in a board (drag & drop)
+     Used for ordering lists in a board (drag & drop)
      */
     @Column(nullable = false)
     private Integer position;
@@ -38,7 +44,7 @@ public class TaskList {
       Soft delete flag, by default false
      */
     @Column(nullable = false)
-    private boolean isArchived = false;
+    private boolean archived = false;
 
     @CreationTimestamp
     private LocalDateTime createdAt;

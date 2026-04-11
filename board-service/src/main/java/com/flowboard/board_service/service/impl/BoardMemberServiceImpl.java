@@ -129,4 +129,9 @@ public class BoardMemberServiceImpl implements BoardMemberService {
         return boardRepository.findById(boardId)
                 .orElseThrow(() -> new BoardNotFoundException("Board not found with id " + boardId.toString()));
     }
+
+    @Override
+    public Boolean checkIsMember(Integer boardId, Integer userId) {
+        return boardMemberRepository.existsByBoardIdAndUserId(boardId, userId);
+    }
 }

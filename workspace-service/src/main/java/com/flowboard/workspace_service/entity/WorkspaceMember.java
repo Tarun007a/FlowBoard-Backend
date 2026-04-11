@@ -12,6 +12,7 @@ or you need check when inserting in the table every time
  */
 @Entity
 @Table(
+        //optional, jps also does similar job camelCase -> snake_case but here we have extra s
         name = "workspace_members",
         indexes = {
                 @Index(name = "idx_workspace", columnList = "workspaceId"),

@@ -1,4 +1,4 @@
-package com.flowboard.board_service.exception;
+package com.flowboard.list_service.exception;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -11,13 +11,8 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(ex.getMessage());
     }
 
-    @ExceptionHandler(BoardNotFoundException.class)
-    public ResponseEntity<String> handleBoardNotFoundException(BoardNotFoundException ex) {
-        return ResponseEntity.badRequest().body(ex.getMessage());
-    }
-
-    @ExceptionHandler(BoardMemberNotFoundException.class)
-    public ResponseEntity<String> handleBoardMemberNotFoundException(BoardMemberNotFoundException ex) {
+    @ExceptionHandler(TaskListNotFoundException.class)
+    public ResponseEntity<String> handleListNotFoundException(TaskListNotFoundException ex) {
         return ResponseEntity.badRequest().body(ex.getMessage());
     }
 

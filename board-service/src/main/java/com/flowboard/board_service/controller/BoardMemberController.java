@@ -51,4 +51,14 @@ public class BoardMemberController {
 
         return ResponseEntity.ok(boardMemberService.getMembers(boardId, userId, page, size, by, direction));
     }
+
+    /*
+    For inter-service communication and will be used by list service
+     */
+    @GetMapping("/{boardId}/is-member/{userId}")
+    public Boolean isMember(
+            @PathVariable(value = "boardId") Integer boardId,
+            @PathVariable(value = "userId") Integer userId) {
+        return boardMemberService.checkIsMember(boardId, userId);
+    }
 }

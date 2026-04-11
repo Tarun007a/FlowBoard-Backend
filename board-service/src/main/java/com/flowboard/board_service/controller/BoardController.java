@@ -110,4 +110,14 @@ public class BoardController {
         boardService.openBoard(boardId, userId);
         return ResponseEntity.status(HttpStatus.ACCEPTED).body("Board opened successfully");
     }
+
+    @GetMapping("/workspace/{boardId}")
+    public Integer getWorkspaceId(@PathVariable(value = "boardId") Integer boardId) {
+        return boardService.getWorkspaceId(boardId);
+    }
+
+    @GetMapping("/is-private/{boardId}")
+    public Boolean isPrivate(@PathVariable(value = "boardId") Integer boardId) {
+        return boardService.isPrivate(boardId);
+    }
 }
