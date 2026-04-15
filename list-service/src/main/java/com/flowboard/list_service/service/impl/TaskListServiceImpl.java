@@ -116,7 +116,6 @@ public class TaskListServiceImpl implements TaskListService {
 
         HashMap<Integer, Integer> newOrder = new HashMap<>();
         HashSet<Integer> positions = new HashSet<>();
-        List<TaskList> taskLists = new ArrayList<>();
 
         for (TaskListOrderRequestDto dto : taskListOrder) {
             Integer position = dto.getPosition();
@@ -124,6 +123,10 @@ public class TaskListServiceImpl implements TaskListService {
 
             if (position < 1 || position > totalList) {
                 throw new IllegalOperationException("Invalid position for a list");
+            }
+
+            if(!map.containsKey(taskListId)) {
+                throw new IllegalOperationException("Invalid task list id " + taskListId.toString());
             }
 
             TaskList taskList = map.get(taskListId);
@@ -148,7 +151,7 @@ public class TaskListServiceImpl implements TaskListService {
         Using save all is always a better idea as it make only 1 call to db so increases
         speed very effectively.
          */
-        taskListRepository.saveAll(taskLists);
+        taskListRepository.saveAll(existing);
 
         List<TaskList> resultantOrder =
                 taskListRepository.findByBoardIdAndArchivedFalseOrderByPosition(boardId);
@@ -203,6 +206,26 @@ public class TaskListServiceImpl implements TaskListService {
                 .stream()
                 .map(taskListResponseMapper::mapTo)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<TaskListResponseDto> getPublicTaskList(Integer boardId) {
+        Integer workspaceId = boardClient.getWorkspaceId(boardId);
+        if(workspaceClient.isPrivate(workspaceId) || boardClient.isPrivate(boardId)) {
+            throw new IllegalOperationException("You cannot view this task list");
+        }
+
+        List<TaskList> taskLists = taskListRepository
+                .findByBoardIdAndArchivedFalseOrderByPosition(boardId);
+
+        return taskLists.stream()
+                .map(taskListResponseMapper::mapTo)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Integer getBoardId(Integer listId) {
+        return getTaskList(listId).getBoardId();
     }
 
     private Integer getLastPosition(Integer boardId) {

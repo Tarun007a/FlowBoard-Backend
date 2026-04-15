@@ -25,4 +25,8 @@ public interface TaskListService {
     public void deleteTaskList(Integer taskListId, Integer userId);
 
     public List<TaskListResponseDto> getArchiveTaskLists(Integer boardId, Integer userId);
+
+    public List<TaskListResponseDto> getPublicTaskList(Integer boardId);
+
+    Integer getBoardId(Integer listId);
 }

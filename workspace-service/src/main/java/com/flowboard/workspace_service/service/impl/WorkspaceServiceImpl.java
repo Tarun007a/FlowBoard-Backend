@@ -125,6 +125,7 @@ public class WorkspaceServiceImpl implements WorkspaceService {
 
     @Override
     public Boolean isMember(Integer workspaceId, Integer memberId) {
+        log.info("checking member " + memberId + " " + workspaceId);
         return workspaceMemberRepository.existsByWorkspaceIdAndUserId(workspaceId, memberId);
     }
 

@@ -40,7 +40,7 @@ public class BoardMemberServiceImpl implements BoardMemberService {
     @Override
     public BoardMemberResponseDto addMember(BoardMemberRequestDto boardMemberRequestDto, Integer userId) {
         Integer boardId = boardMemberRequestDto.getBoardId();
-        Integer memberId = boardMemberRequestDto.getUserId();
+        Integer addedUserId = boardMemberRequestDto.getUserId();
 
         Board board = getBoard(boardId);
 
@@ -48,11 +48,11 @@ public class BoardMemberServiceImpl implements BoardMemberService {
             throw new IllegalOperationException("You cannot add member in this board");
         }
 
-        if(!workspaceClient.isMember(board.getWorkspaceId(), memberId)) {
-            throw new IllegalOperationException("The you are trying to add in board must be part of workspace");
+        if(!workspaceClient.isMember(board.getWorkspaceId(), addedUserId)) {
+            throw new IllegalOperationException("The user you are trying to add in board must be part of workspace");
         }
 
-        if(boardMemberRepository.existsByBoardIdAndUserId(boardId, memberId)) {
+        if(boardMemberRepository.existsByBoardIdAndUserId(boardId, addedUserId)) {
             throw new IllegalOperationException("User already member of board");
         }
 

@@ -48,6 +48,8 @@ public class BoardServiceImpl implements BoardService {
         Board board = boardRequestMapper.mapTo(boardRequestDto);
         board.setCreatedById(userId);
 
+        log.info(board.toString());
+
         Board savedBoard = boardRepository.save(board);
 
         BoardMember member = BoardMember

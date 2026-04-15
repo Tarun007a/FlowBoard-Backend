@@ -47,6 +47,17 @@ spring:
           uri: lb://BOARD-SERVICE
           predicates:
             - Path=/api/v1/board-members/**
+
+        - id: list-service
+          uri: lb://LIST-SERVICE
+          predicates:
+            - Path=/api/v1/lists/**
+
+        - id: card-service
+          uri: lb://CARD-SERVICE
+          predicates:
+            - Path=/api/v1/cards/**
+
 eureka:
   client:
     service-url:
