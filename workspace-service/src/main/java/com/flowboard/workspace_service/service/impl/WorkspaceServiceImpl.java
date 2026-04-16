@@ -20,6 +20,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -89,6 +91,61 @@ public class WorkspaceServiceImpl implements WorkspaceService {
                 .map(workspaceResponseMapper::mapTo);
 
         return new CustomPageResponse<>(workspaceResponseDtoPage);
+    }
+
+    @Override
+    public CustomPageResponse<WorkspaceResponseDto> getJoinedWorkspaces(Integer userId,
+                                                                        int page,
+                                                                        int size,
+                                                                        String by,
+                                                                        String direction) {
+
+        Sort sort;
+        if ("asc".equalsIgnoreCase(direction)) {
+            sort = Sort.by(by).ascending();
+        }
+        else {
+            sort = Sort.by(by).descending();
+        }
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Page<WorkspaceMember> workspaceMemberPage =
+                workspaceMemberRepository.findByUserId(userId, pageable);
+
+        List<Integer> workspaceIds = workspaceMemberPage.getContent()
+                .stream()
+                .map(WorkspaceMember::getWorkspaceId)
+                .toList();
+
+        if (workspaceIds.isEmpty()) {
+            return new CustomPageResponse<>(Page.empty(pageable));
+        }
+
+        Page<Workspace> workspacePage =
+                workspaceRepository.findByWorkspaceIdIn(workspaceIds, pageable);
+
+        Page<WorkspaceResponseDto> workspaceResponseDtoPage =
+                workspacePage.map(workspaceResponseMapper::mapTo);
+
+        return new CustomPageResponse<>(workspaceResponseDtoPage);
+    }
+
+    @Override
+    public WorkspaceResponseDto findById(Integer workspaceId, Integer userId) {
+        validateAccess(workspaceId, userId);
+        return workspaceResponseMapper.mapTo(getWorkspace(workspaceId));
+    }
+
+    @Override
+    public Boolean checkModificationAccess(Integer workspaceId, Integer userId) {
+        try{
+            validateAccess(workspaceId, userId);
+        }
+        catch (IllegalOperationException ex) {
+            return false;
+        }
+        return true;
     }
 
     private void validateAccess(Integer workspaceId, Integer userId) {

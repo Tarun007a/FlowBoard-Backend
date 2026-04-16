@@ -4,6 +4,9 @@ import com.flowboard.card_service.dto.CardActivityResponseDto;
 import com.flowboard.card_service.service.CardActivityService;
 import com.flowboard.card_service.util.AppConstants;
 import com.flowboard.card_service.util.CustomPageResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -11,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/cards")
 @RequiredArgsConstructor
+@Tag(name = "Card Activity Controller", description = "Card activity related APIs")
 public class CardActivityController {
 
     private final CardActivityService cardActivityService;
@@ -25,6 +29,8 @@ public class CardActivityController {
         return Integer.parseInt(userIdHeader);
     }
 
+    @Operation(summary = "Get card activities", description = "Returns paginated activity history of a card")
+    @ApiResponse(responseCode = "200", description = "Activities fetched successfully")
     @GetMapping("/card/{cardId}")
     public CustomPageResponse<CardActivityResponseDto> getByCard(
             @PathVariable Integer cardId,

@@ -16,6 +16,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -25,7 +26,7 @@ import java.util.UUID;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class OAuthAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
+public class OAuthAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
     private final JwtService jwtService;
     private final UserRepository userRepo;
     private final UserDetailsService userDetailsService;
@@ -61,11 +62,9 @@ public class OAuthAuthenticationSuccessHandler implements AuthenticationSuccessH
         UserDetails userDetails = userDetailsService.loadUserByUsername(email);
         String token = jwtService.generateToken(email, "USER", userId);
 
-        String jsonResponse = String.format(
-                "{\"token\": \"%s\", \"email\": \"%s\"}", token, email
-        );
-        response.getWriter().write(jsonResponse);
-        response.getWriter().flush();
+        String redirectUrl = "http://localhost:4200/oauth-success?token=" + token;
+
+        getRedirectStrategy().sendRedirect(request, response, redirectUrl);
     }
 }
 

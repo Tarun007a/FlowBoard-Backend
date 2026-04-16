@@ -5,6 +5,9 @@ import com.flowboard.workspace_service.dto.WorkspaceMemberResponseDto;
 import com.flowboard.workspace_service.service.WorkspaceMemberService;
 import com.flowboard.workspace_service.util.AppConstants;
 import com.flowboard.workspace_service.util.CustomPageResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/workspaces")
 @RequiredArgsConstructor
 @Slf4j
+@Tag(name = "Workspace Member Controller", description = "Workspace member management related APIs")
 public class WorkspaceMemberController {
 
     private final WorkspaceMemberService memberService;
@@ -25,6 +29,8 @@ public class WorkspaceMemberController {
         return Integer.parseInt(request.getHeader("X-User-Id"));
     }
 
+    @Operation(summary = "Add workspace member", description = "Adds member to workspace")
+    @ApiResponse(responseCode = "201", description = "Member added successfully")
     @PostMapping("/add")
     public ResponseEntity<WorkspaceMemberResponseDto> addMember(@RequestBody @Valid WorkspaceMemberRequestDto workspaceMemberRequestDto,
                                                                 HttpServletRequest request) {
@@ -32,6 +38,8 @@ public class WorkspaceMemberController {
         return ResponseEntity.status(HttpStatus.CREATED).body(memberService.addMember(workspaceMemberRequestDto, getUserId(request)));
     }
 
+    @Operation(summary = "Remove workspace member", description = "Removes member from workspace")
+    @ApiResponse(responseCode = "200", description = "Member removed successfully")
     @DeleteMapping("/{workspaceId}/members/{userId}")
     public ResponseEntity<String> removeMember(@PathVariable Integer workspaceId,
                                                @PathVariable Integer userId,

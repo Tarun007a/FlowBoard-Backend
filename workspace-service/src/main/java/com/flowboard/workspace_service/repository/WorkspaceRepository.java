@@ -17,4 +17,6 @@ public interface WorkspaceRepository extends JpaRepository<Workspace, Integer> {
     boolean existsByNameAndOwnerId(String name, Integer ownerId);
 
     Page<Workspace> findByVisibility(Visibility visibility, Pageable pageable);
+
+    Page<Workspace> findByWorkspaceIdIn(List<Integer> workspaceIds, Pageable pageable);
 }

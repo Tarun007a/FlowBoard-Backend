@@ -25,4 +25,10 @@ public interface WorkspaceService {
     public Boolean isMember(Integer workspaceId, Integer memberId);
 
     public Boolean isPrivate(Integer workspaceId);
+
+    CustomPageResponse<WorkspaceResponseDto> getJoinedWorkspaces(Integer ownerId, int page, int size, String by, String direction);
+
+    WorkspaceResponseDto findById(Integer workspaceId, Integer userid);
+
+    Boolean checkModificationAccess(Integer workspaceId, Integer userId);
 }
