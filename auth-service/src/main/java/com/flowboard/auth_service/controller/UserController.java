@@ -109,4 +109,9 @@ public class UserController {
     public List<Integer> getUserIdsByUsername(@RequestParam List<String> userEmailList) {
         return userService.findAllUserIdByEmail(userEmailList);
     }
+
+    @GetMapping("/check/{userId}")
+    public Boolean checkUser(@PathVariable(value = "userId") Integer userId) {
+        return userService.checkByUserId(userId);
+    }
 }

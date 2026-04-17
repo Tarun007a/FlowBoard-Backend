@@ -167,4 +167,9 @@ public class UserServiceImpl implements UserService {
                 .map(userResponseMapper::mapTo)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public Boolean checkByUserId(Integer userId) {
+        return userRepository.findById(userId).isPresent();
+    }
 }

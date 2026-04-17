@@ -38,4 +38,6 @@ public interface CardService {
     void unarchiveCard(Integer cardId, Integer userId);
 
     List<CardResponseDto> getOverdueCards(Integer userId);
+
+    Integer getAssignedUserId(Integer cardId);
 }

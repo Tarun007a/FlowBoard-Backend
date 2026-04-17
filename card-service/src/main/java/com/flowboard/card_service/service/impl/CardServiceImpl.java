@@ -12,6 +12,7 @@ import com.flowboard.card_service.exception.IllegalOperationException;
 import com.flowboard.card_service.mapper.Mapper;
 import com.flowboard.card_service.repository.CardRepository;
 import com.flowboard.card_service.service.CardService;
+import com.flowboard.card_service.service.NotificationProcedure;
 import com.flowboard.card_service.util.AppConstants;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,7 +34,7 @@ public class CardServiceImpl implements CardService {
     private final WorkspaceClient workspaceClient;
     private final BoardClient boardClient;
     private final ListClient listClient;
-    private final NotificationProducer notificationProducer;
+    private final NotificationProcedure notificationProducer;
 
     private void sendNotification(Integer recipientId,
                                   Integer actorId,
@@ -54,7 +55,7 @@ public class CardServiceImpl implements CardService {
         dto.setRelatedId(relatedId);
         dto.setRelatedType(RelatedType.CARD);
 
-        notificationProducer.send(dto);
+        notificationProducer.sendSingle(dto);
     }
 
     @Override
@@ -356,12 +357,17 @@ public class CardServiceImpl implements CardService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public Integer getAssignedUserId(Integer cardId) {
+        return getCard(cardId).getAssigneeId();
+    }
+
     /*
-    if both the if conditions are false this means public workspace and public board
-    here we are making 3 calls to board service in worst case and 2 calls to workspace
-    service a better idea is to just make a single call and create a dto to take all
-    the things which to want in return for optimization(to do)
-     */
+        if both the if conditions are false this means public workspace and public board
+        here we are making 3 calls to board service in worst case and 2 calls to workspace
+        service a better idea is to just make a single call and create a dto to take all
+        the things which to want in return for optimization(to do)
+         */
     private void validateViewRequest(Integer boardId, Integer userId) {
         /*
          If board is private user must be member

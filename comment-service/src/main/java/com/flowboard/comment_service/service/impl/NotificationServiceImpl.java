@@ -1,5 +1,6 @@
 package com.flowboard.comment_service.service.impl;
 
+import com.flowboard.comment_service.client.CardClient;
 import com.flowboard.comment_service.client.UserClient;
 import com.flowboard.comment_service.dto.BulkNotificationRequestDto;
 import com.flowboard.comment_service.entity.NotificationType;
@@ -22,21 +23,19 @@ import java.util.Set;
 public class NotificationServiceImpl implements NotificationService {
     private final UserClient userClient;
     private final RabbitTemplate rabbitTemplate;
+    private final CardClient cardClient;
 
     @Value("${rabbitmq.exchange.name}")
     private String exchange;
 
-    @Value("${rabbitmq.routing.key}")
-    private String routingKey;
+    @Value("${rabbitmq.routing.single.key}")
+    private String singleRoutingKey;
+
+    @Value("${rabbitmq.routing.bulk.key}")
+    private String bulkRoutingKey;
 
     @Override
     public void sendNotification(Integer cardId, String content, Integer currentUserId) {
-        // card service is not ready so using a static list of recipients
-        Set<Integer> allRecipients = new HashSet<>(List.of(2, 3, 4));
-
-        // remove self
-        allRecipients.remove(currentUserId);
-
         List<String> mentions = extractMentions(content);
         List<Integer> mentionedUserIds = userClient.getUserIdsByUsername(mentions);
         log.info("Returned user ids from user service : " + mentionedUserIds.toString());
@@ -46,12 +45,7 @@ public class NotificationServiceImpl implements NotificationService {
         // remove self from mentions
         mentionUsers.remove(currentUserId);
 
-        // split
-        Set<Integer> normalUsers = new HashSet<>(allRecipients);
-        normalUsers.removeAll(mentionUsers);
-
         log.info(mentionUsers.toString());
-        log.info(normalUsers.toString());
         log.info(currentUserId.toString());
 
         // send mention notifications
@@ -62,19 +56,7 @@ public class NotificationServiceImpl implements NotificationService {
                     NotificationType.MENTION,
                     "You were mentioned",
                     "You were mentioned in a comment");
-            rabbitTemplate.convertAndSend(exchange, routingKey, notificationRequestDto);
-
-        }
-
-        // send notifications
-        if (!normalUsers.isEmpty()) {
-            BulkNotificationRequestDto notificationRequestDto = buildDto(new ArrayList<>(normalUsers),
-                    currentUserId,
-                    cardId,
-                    NotificationType.COMMENT,
-                    "New Comment",
-                    "Someone commented on your card");
-            rabbitTemplate.convertAndSend(exchange, routingKey, notificationRequestDto);
+            rabbitTemplate.convertAndSend(exchange, bulkRoutingKey, notificationRequestDto);
         }
     }
 

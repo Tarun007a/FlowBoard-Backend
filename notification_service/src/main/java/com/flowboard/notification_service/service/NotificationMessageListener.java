@@ -4,5 +4,7 @@ import com.flowboard.notification_service.dto.BulkNotificationRequestDto;
 import com.flowboard.notification_service.dto.NotificationRequestDto;
 
 public interface NotificationMessageListener {
-    public void processNotification(Object object);
+    void processSingleNotification(NotificationRequestDto notificationRequestDto);
+
+    void processBulkNotification(BulkNotificationRequestDto bulkNotificationRequestDto);
 }

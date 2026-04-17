@@ -34,6 +34,12 @@ rabbitmq:
   exchange:
     name: notification-exchange
   queue:
-    name: notification-queue
+    single:
+      name: single-notification-queue
+    bulk:
+      name: bulk-notification-queue
   routing:
-    key: notification-key
+    single:
+      key: single-notification-key
+    bulk:
+      key: bulk-notification-key

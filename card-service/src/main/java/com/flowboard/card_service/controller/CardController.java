@@ -185,4 +185,11 @@ public class CardController {
         Integer userId = extractUserId(request);
         return ResponseEntity.ok(cardService.getOverdueCards(userId));
     }
+
+    @Operation(summary = "Get assigned user id", description = "Returns the user id to whome the card is assigned")
+    @ApiResponse(responseCode = "200", description = "User id returned successfully")
+    @GetMapping("/assigned-user/{cardId}")
+    public Integer getAssignedUserId(Integer cardId) {
+        return cardService.getAssignedUserId(cardId);
+    }
 }

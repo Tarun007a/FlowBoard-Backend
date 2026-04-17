@@ -31,4 +31,6 @@ public interface UserService {
     public List<Integer> findAllUserIdByEmail(List<String> userEmailList);
 
     public List<UserDto> getBulkUser(List<Integer> userIds);
+
+    Boolean checkByUserId(Integer userId);
 }
