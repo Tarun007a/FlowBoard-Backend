@@ -1,9 +1,13 @@
 package com.flowboard.auth_service.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class UserDto {
     @Schema(description = "Full name", example = "user1")
     private String fullName;

@@ -1,7 +1,5 @@
 package com.flowboard.comment_service.dto;
 
-import com.flowboard.comment_service.entity.NotificationType;
-import com.flowboard.comment_service.entity.RelatedType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 

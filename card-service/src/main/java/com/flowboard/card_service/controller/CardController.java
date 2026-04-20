@@ -189,7 +189,7 @@ public class CardController {
     @Operation(summary = "Get assigned user id", description = "Returns the user id to whome the card is assigned")
     @ApiResponse(responseCode = "200", description = "User id returned successfully")
     @GetMapping("/assigned-user/{cardId}")
-    public Integer getAssignedUserId(Integer cardId) {
+    public Integer getAssignedUserId(@PathVariable(value = "cardId") Integer cardId) {
         return cardService.getAssignedUserId(cardId);
     }
 }

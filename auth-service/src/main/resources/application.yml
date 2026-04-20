@@ -1,5 +1,7 @@
 server:
   port: 8081
+  forward-headers-strategy: framework
+
 spring:
   application:
     name: auth-service
@@ -21,6 +23,21 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
+
+  boot:
+    admin:
+      client:
+        url: http://localhost:9090
+
+  management:
+    endpoints:
+      web:
+        exposure:
+          include: "*"
+
+    endpoint:
+      health:
+        show-details: always
 
 security:
   jwt:

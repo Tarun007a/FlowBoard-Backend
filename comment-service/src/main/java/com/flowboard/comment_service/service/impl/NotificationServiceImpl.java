@@ -3,8 +3,9 @@ package com.flowboard.comment_service.service.impl;
 import com.flowboard.comment_service.client.CardClient;
 import com.flowboard.comment_service.client.UserClient;
 import com.flowboard.comment_service.dto.BulkNotificationRequestDto;
-import com.flowboard.comment_service.entity.NotificationType;
-import com.flowboard.comment_service.entity.RelatedType;
+import com.flowboard.comment_service.dto.NotificationRequestDto;
+import com.flowboard.comment_service.dto.NotificationType;
+import com.flowboard.comment_service.dto.RelatedType;
 import com.flowboard.comment_service.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,6 +40,23 @@ public class NotificationServiceImpl implements NotificationService {
         List<String> mentions = extractMentions(content);
         List<Integer> mentionedUserIds = userClient.getUserIdsByUsername(mentions);
         log.info("Returned user ids from user service : " + mentionedUserIds.toString());
+
+        Integer assignedUserId = cardClient.getAssignedUserId(cardId);
+
+        if(assignedUserId != null) {
+            NotificationRequestDto notificationRequestDto = NotificationRequestDto
+                    .builder()
+                    .title("Comment on card")
+                    .actorId(currentUserId)
+                    .recipientId(assignedUserId)
+                    .message("Some one comment on the card you are assined")
+                    .relatedId(cardId)
+                    .relatedType(RelatedType.CARD)
+                    .notificationType(NotificationType.COMMENT)
+                    .build();
+
+            rabbitTemplate.convertAndSend(exchange, singleRoutingKey, notificationRequestDto);
+        }
 
         Set<Integer> mentionUsers = new HashSet<>(mentionedUserIds);
 

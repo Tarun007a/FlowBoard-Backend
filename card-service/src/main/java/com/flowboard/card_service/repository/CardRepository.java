@@ -37,4 +37,6 @@ public interface CardRepository extends JpaRepository<Card, Integer> {
     List<Card> findByDueDateBeforeAndStatusNot(LocalDateTime now, Status status);
 
     List<Card> findByAssigneeIdAndDueDateBeforeAndStatusNotOrderByPositionAsc(Integer userId, LocalDateTime date, Status status);
+
+    List<Card> findByIsArchivedFalse();
 }

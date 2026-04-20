@@ -11,6 +11,7 @@ import com.flowboard.workspace_service.mapper.Mapper;
 import com.flowboard.workspace_service.repository.WorkspaceMemberRepository;
 import com.flowboard.workspace_service.repository.WorkspaceRepository;
 import com.flowboard.workspace_service.service.WorkspaceService;
+import com.flowboard.workspace_service.util.AppConstants;
 import com.flowboard.workspace_service.util.CustomPageResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -100,15 +101,15 @@ public class WorkspaceServiceImpl implements WorkspaceService {
                                                                         String by,
                                                                         String direction) {
 
-        Sort sort;
+        Sort sortWorkspaceMember;
         if ("asc".equalsIgnoreCase(direction)) {
-            sort = Sort.by(by).ascending();
+            sortWorkspaceMember = Sort.by(AppConstants.sortForWorkspaceMember).ascending();
         }
         else {
-            sort = Sort.by(by).descending();
+            sortWorkspaceMember = Sort.by(AppConstants.sortForWorkspaceMember).descending();
         }
 
-        Pageable pageable = PageRequest.of(page, size, sort);
+        Pageable pageable = PageRequest.of(page, size, sortWorkspaceMember);
 
         Page<WorkspaceMember> workspaceMemberPage =
                 workspaceMemberRepository.findByUserId(userId, pageable);
@@ -121,6 +122,16 @@ public class WorkspaceServiceImpl implements WorkspaceService {
         if (workspaceIds.isEmpty()) {
             return new CustomPageResponse<>(Page.empty(pageable));
         }
+
+        Sort sortWorkspace;
+        if ("asc".equalsIgnoreCase(direction)) {
+            sortWorkspace = Sort.by(by).ascending();
+        }
+        else {
+            sortWorkspace = Sort.by(by).descending();
+        }
+
+        pageable = PageRequest.of(page, size, sortWorkspace);
 
         Page<Workspace> workspacePage =
                 workspaceRepository.findByWorkspaceIdIn(workspaceIds, pageable);

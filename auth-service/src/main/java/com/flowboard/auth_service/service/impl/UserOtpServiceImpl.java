@@ -28,6 +28,7 @@ public class UserOtpServiceImpl implements UserOtpService {
     public void sendOtp(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("User does not exist with email " + email));
+
         Optional<UserOtp> userOtpOptional = userOtpRepository.findByUserId(user.getUserId());
 
         String otp = UUID.randomUUID().toString().substring(0, 6);
@@ -52,6 +53,7 @@ public class UserOtpServiceImpl implements UserOtpService {
             }
 
             userOtp.setOtpSent(userOtp.getOtpSent()+1);
+            userOtp.setOtp(otp);
             userOtpRepository.save(userOtp);
             emailService.sendOtpEmail(user.getEmail(), otp);
         }

@@ -83,9 +83,9 @@ public class CardServiceImpl implements CardService {
         sendNotification(
                 card.getAssigneeId(),
                 userId,
-                NotificationType.SYSTEM,
-                "Card Created",
-                "New card created: " + card.getTitle(),
+                NotificationType.ASSIGNMENT,
+                "Card Created and  Assigned",
+                "New card created: " + card.getTitle() + " and assigned to you",
                 card.getCardId()
         );
 
@@ -112,7 +112,7 @@ public class CardServiceImpl implements CardService {
         return cards
                 .stream()
                 .map(responseMapper::mapTo)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -123,7 +123,7 @@ public class CardServiceImpl implements CardService {
         return cards
                 .stream()
                 .map(responseMapper::mapTo)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -137,7 +137,7 @@ public class CardServiceImpl implements CardService {
 
         return cards.stream()
                 .map(responseMapper::mapTo)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -354,7 +354,7 @@ public class CardServiceImpl implements CardService {
 
         return overdue.stream()
                 .map(responseMapper::mapTo)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -388,7 +388,6 @@ public class CardServiceImpl implements CardService {
         }
 
         // public board + public workspace -> allowed
-        return;
     }
 
     /*
@@ -428,9 +427,5 @@ public class CardServiceImpl implements CardService {
     private Card getCard(Integer cardId) {
         return cardRepository.findById(cardId)
                 .orElseThrow(() -> new CardNotFoundException("Card not found"));
-    }
-
-    private Integer getLastPosition(Integer boardId) {
-        return cardRepository.maxPosition(boardId);
     }
 }

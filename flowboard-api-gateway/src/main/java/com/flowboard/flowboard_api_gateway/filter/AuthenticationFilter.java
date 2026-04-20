@@ -36,7 +36,7 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
         String path = exchange.getRequest().getURI().getPath();
 
         if (!routeValidator.isSecured.test(path)) {
-            log.info("unsecured url");
+            log.info("public url, directly calling the downstream service");
             return chain.filter(exchange);
         }
 

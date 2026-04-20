@@ -1,7 +1,5 @@
 package com.flowboard.comment_service.dto;
 
-import com.flowboard.comment_service.entity.NotificationType;
-import com.flowboard.comment_service.entity.RelatedType;
 import lombok.Data;
 import java.time.LocalDateTime;
 

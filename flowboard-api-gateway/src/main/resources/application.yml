@@ -5,6 +5,11 @@ spring:
   application:
     name: flowboard-api-gateway
 
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
   cloud:
     gateway:
       routes:
@@ -12,6 +17,16 @@ spring:
           uri: lb://AUTH-SERVICE
           predicates:
             - Path=/api/v1/auth/**
+
+        - id: oauth-service
+          uri: lb://AUTH-SERVICE
+          predicates:
+            - Path=/oauth2/**
+
+        - id: oauth-callback
+          uri: lb://AUTH-SERVICE
+          predicates:
+            - Path=/login/oauth2/**
 
         - id: user-service
           uri: lb://AUTH-SERVICE
@@ -57,6 +72,28 @@ spring:
           uri: lb://CARD-SERVICE
           predicates:
             - Path=/api/v1/cards/**
+
+        - id: subscription-service
+          uri: lb://SUBSCRIPTION-SERVICE
+          predicates:
+            - Path=/api/v1/subscriptions/**
+
+
+  boot:
+    admin:
+      client:
+        url: http://localhost:9090
+
+  management:
+    endpoints:
+      web:
+        exposure:
+          include: "*"
+
+    endpoint:
+      health:
+        show-details: always
+
 
 eureka:
   client:

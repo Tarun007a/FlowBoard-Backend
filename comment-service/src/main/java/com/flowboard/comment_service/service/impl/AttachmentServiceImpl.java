@@ -13,6 +13,7 @@ import com.flowboard.comment_service.util.AppConstants;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -46,6 +47,9 @@ public class AttachmentServiceImpl implements AttachmentService {
             // input optional like folder and other things empty for now
             Map<String, Object> options = new HashMap<>();
             options.put("folder", "flowboard/attachments");
+            options.put("resource_type", "raw");  // Use "raw" for PDFs
+            options.put("access_mode", "public");  // Make URLs publicly accessible
+
 
             Map<String, Object> uploadResult =
                     cloudinary.uploader().upload(file.getBytes(), options);
@@ -73,21 +77,23 @@ public class AttachmentServiceImpl implements AttachmentService {
         List<Attachment> attachment = attachmentRepository.findByCardId(cardId);
         return attachment.stream()
                 .map(attachmentResponseMapper::mapTo)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
+    @Transactional
     public void deleteAttachment(Integer attachmentId) {
         log.info("Deleting attachment");
         Attachment attachment = attachmentRepository.findByAttachmentId(attachmentId)
                 .orElseThrow(() -> new AttachmentNotFoundException("Attachment not found with id " + attachmentId));
         try{
             Map<String, Object> options = new HashMap<>();
-//            options.put("folder", "flowboard/attachments");
+            options.put("resource_type", "raw");
             cloudinary.uploader().destroy(attachment.getPublicId(), options);
             attachmentRepository.deleteByAttachmentId(attachmentId);
         }
-        catch (IOException ex) {
+        catch (Exception ex) {
+            log.info(ex.getMessage());
             log.info("Error when deleting attachment with id " + attachmentId);
             throw new FileException("Unable to delete file");
         }

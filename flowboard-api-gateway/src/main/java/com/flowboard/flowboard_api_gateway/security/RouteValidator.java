@@ -14,7 +14,10 @@ public class RouteValidator {
             "/api/v1/auth/forget",
             "/api/v1/workspaces/public",
             "/api/v1/boards/get/workspace/",
-            "/api/v1/lists/public"
+            "/api/v1/lists/public",
+            "/oauth2/authorization/google",
+            "/api/v1/subscriptions/details",
+            "/login/oauth2/code/google"
     );
     public Predicate<String> isSecured =
             uri -> {

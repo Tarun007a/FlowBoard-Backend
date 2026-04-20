@@ -70,6 +70,7 @@ public class WorkspaceController {
         return ResponseEntity.ok(workspaceService.getMyWorkspaces(ownerId, page, size, by, direction));
     }
 
+
     @Operation(summary = "Get joined workspaces", description = "Returns paginated workspaces joined by logged user")
     @ApiResponse(responseCode = "200", description = "Joined workspaces fetched successfully")
     @GetMapping("/joined")
@@ -77,7 +78,7 @@ public class WorkspaceController {
             HttpServletRequest request,
             @RequestParam(value = "page", defaultValue = AppConstants.page) int page,
             @RequestParam(value = "size", defaultValue = AppConstants.size) int size,
-            @RequestParam(name = "sort", defaultValue = AppConstants.sortForWorkspaceMember) String by,
+            @RequestParam(name = "sort", defaultValue = AppConstants.sortForWorkspace) String by,
             @RequestParam(name = "direction", defaultValue = AppConstants.direction) String direction) {
 
         Integer ownerId = getUserId(request);

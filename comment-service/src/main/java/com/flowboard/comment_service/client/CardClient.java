@@ -2,9 +2,10 @@ package com.flowboard.comment_service.client;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
-@FeignClient(name = "CARD-CLIENT")
+@FeignClient(name = "CARD-SERVICE")
 public interface CardClient {
-    @GetMapping("/assigned-user/{cardId}")
-    public Integer getAssignedUserId(Integer cardId);
+    @GetMapping("/api/v1/cards/assigned-user/{cardId}")
+    public Integer getAssignedUserId(@PathVariable(value = "cardId") Integer cardId);
 }

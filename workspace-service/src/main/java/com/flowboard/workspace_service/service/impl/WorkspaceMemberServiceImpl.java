@@ -1,5 +1,6 @@
 package com.flowboard.workspace_service.service.impl;
 
+import com.flowboard.workspace_service.client.UserClient;
 import com.flowboard.workspace_service.dto.WorkspaceMemberRequestDto;
 import com.flowboard.workspace_service.dto.WorkspaceMemberResponseDto;
 import com.flowboard.workspace_service.entity.Workspace;
@@ -29,6 +30,7 @@ public class WorkspaceMemberServiceImpl implements WorkspaceMemberService {
     private final WorkspaceMemberRepository workspaceMemberRepository;
     private final Mapper<WorkspaceMemberRequestDto, WorkspaceMember> workspaceMemberRequestMapper;
     private final Mapper<WorkspaceMember, WorkspaceMemberResponseDto> workspaceMemberResponseMapper;
+    private final UserClient userClient;
 
     @Override
     public WorkspaceMemberResponseDto addMember(WorkspaceMemberRequestDto workspaceMemberRequestDto, Integer loggedUseId) {
@@ -36,6 +38,12 @@ public class WorkspaceMemberServiceImpl implements WorkspaceMemberService {
 
         Integer workspaceId = workspaceMemberRequestDto.getWorkspaceId();
         Integer userId = workspaceMemberRequestDto.getUserId();
+
+        boolean isUserValid = userClient.checkUser(userId);
+
+        if(!isUserValid) {
+            throw new IllegalOperationException("User does not exist");
+        }
 
         if(workspaceMemberRepository.existsByWorkspaceIdAndUserId(workspaceId, userId)) {
             throw new IllegalOperationException("Already member");

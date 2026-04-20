@@ -1,9 +1,15 @@
 package com.flowboard.card_service.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class NotificationRequestDto {
     @Schema(description = "List of recipient user IDs", example = "[1,2,3]")
     private Integer recipientId;

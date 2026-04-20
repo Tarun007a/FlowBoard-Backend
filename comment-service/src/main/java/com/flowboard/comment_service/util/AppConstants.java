@@ -13,6 +13,5 @@ public class AppConstants {
 
     public static final long maxFileSize = 1024L; // in kb
 
-    public static final List<String> allowedFileFormat = List.of("application/pdf",
-            "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+    public static final List<String> allowedFileFormat = List.of("application/pdf");
 }

@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 public class RazorPayServiceImpl implements RazorPayService {
+
     @Value("${razorpay.key-id}")
     private String keyId;
 
@@ -25,7 +26,7 @@ public class RazorPayServiceImpl implements RazorPayService {
         try {
             RazorpayClient razorpayClient = new RazorpayClient(keyId, keySecret);
 
-            log.info("Razor pay service working");
+            log.info("Creating Razorpay order for plan: {}", subscriptionRequestDto.getPlan());
 
             JSONObject options = new JSONObject();
             options.put("amount", subscriptionRequestDto.getPlan().getPrice());
@@ -33,7 +34,7 @@ public class RazorPayServiceImpl implements RazorPayService {
             options.put("receipt", "sub_" + System.currentTimeMillis());
 
             Order order = razorpayClient.orders.create(options);
-            log.info("Razorpay order created: " + order.get("id"));
+            log.info("Razorpay order created: {}", (Object) order.get("id"));
 
             return RazorPayResponseDto.builder()
                     .status("SUCCESS")
