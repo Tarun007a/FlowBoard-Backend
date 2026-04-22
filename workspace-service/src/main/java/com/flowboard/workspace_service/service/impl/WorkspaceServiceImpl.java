@@ -8,6 +8,8 @@ import com.flowboard.workspace_service.entity.WorkspaceMember;
 import com.flowboard.workspace_service.exception.IllegalOperationException;
 import com.flowboard.workspace_service.exception.WorkspaceNotFoundException;
 import com.flowboard.workspace_service.mapper.Mapper;
+import com.flowboard.workspace_service.mapper.impl.WorkspaceRequestMapper;
+import com.flowboard.workspace_service.mapper.impl.WorkspaceResponseMapper;
 import com.flowboard.workspace_service.repository.WorkspaceMemberRepository;
 import com.flowboard.workspace_service.repository.WorkspaceRepository;
 import com.flowboard.workspace_service.service.WorkspaceService;
@@ -28,8 +30,8 @@ import java.util.List;
 @Slf4j
 public class WorkspaceServiceImpl implements WorkspaceService {
     private final WorkspaceRepository workspaceRepository;
-    private final Mapper<WorkspaceRequestDto, Workspace> workspaceRequestMapper;
-    private final Mapper<Workspace, WorkspaceResponseDto> workspaceResponseMapper;
+    private final WorkspaceRequestMapper workspaceRequestMapper;
+    private final WorkspaceResponseMapper workspaceResponseMapper;
     private final WorkspaceMemberRepository workspaceMemberRepository;
 
     @Override

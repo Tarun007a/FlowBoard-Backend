@@ -7,6 +7,8 @@ import com.flowboard.comment_service.entity.Attachment;
 import com.flowboard.comment_service.exception.AttachmentNotFoundException;
 import com.flowboard.comment_service.exception.FileException;
 import com.flowboard.comment_service.mapper.Mapper;
+import com.flowboard.comment_service.mapper.impl.AttachmentRequestMapper;
+import com.flowboard.comment_service.mapper.impl.AttachmentResponseMapper;
 import com.flowboard.comment_service.repository.AttachmentRepository;
 import com.flowboard.comment_service.service.AttachmentService;
 import com.flowboard.comment_service.util.AppConstants;
@@ -27,8 +29,8 @@ import java.util.stream.Collectors;
 @Slf4j
 public class AttachmentServiceImpl implements AttachmentService {
     private final AttachmentRepository attachmentRepository;
-    private final Mapper<Attachment, AttachmentResponseDto> attachmentResponseMapper;
-    private final Mapper<AttachmentRequestDto, Attachment> attachmentRequestMapper;
+    private final AttachmentResponseMapper attachmentResponseMapper;
+    private final AttachmentRequestMapper attachmentRequestMapper;
     private final Cloudinary cloudinary;
 
     @Override

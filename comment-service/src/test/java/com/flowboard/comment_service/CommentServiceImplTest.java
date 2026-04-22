@@ -5,7 +5,8 @@ import com.flowboard.comment_service.dto.CommentResponseDto;
 import com.flowboard.comment_service.dto.CommentUpdateDto;
 import com.flowboard.comment_service.entity.Comment;
 import com.flowboard.comment_service.exception.CommentNotFoundException;
-import com.flowboard.comment_service.mapper.Mapper;
+import com.flowboard.comment_service.mapper.impl.CommentRequestMapper;
+import com.flowboard.comment_service.mapper.impl.CommentResponseMapper;
 import com.flowboard.comment_service.repository.CommentRepository;
 import com.flowboard.comment_service.service.NotificationService;
 import com.flowboard.comment_service.service.impl.CommentServiceImpl;
@@ -36,10 +37,10 @@ class CommentServiceImplTest {
     private CommentRepository commentRepository;
 
     @Mock
-    private Mapper<CommentRequestDto, Comment> commentRequestMapper;
+    private CommentRequestMapper commentRequestMapper;
 
     @Mock
-    private Mapper<Comment, CommentResponseDto> commentResponseMapper;
+    private CommentResponseMapper commentResponseMapper;
 
     @Mock
     private NotificationService notificationService;

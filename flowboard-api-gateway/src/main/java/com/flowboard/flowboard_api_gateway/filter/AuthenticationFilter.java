@@ -52,7 +52,6 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
         }
 
         String token = authHeader.substring(7);
-//        log.info("Token found validating token" + token);
 
         if (!jwtUtil.isTokenValid(token)) {
             return onError(exchange, "Invalid Token", HttpStatus.UNAUTHORIZED);

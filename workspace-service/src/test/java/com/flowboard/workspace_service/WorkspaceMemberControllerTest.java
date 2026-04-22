@@ -48,6 +48,8 @@ class WorkspaceMemberControllerTest {
 
         WorkspaceMemberRequestDto request =
                 new WorkspaceMemberRequestDto();
+        request.setWorkspaceId(1);
+        request.setUserId(2);
 
         WorkspaceMemberResponseDto response =
                 new WorkspaceMemberResponseDto();
@@ -61,7 +63,7 @@ class WorkspaceMemberControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").value(1));
+                .andExpect(jsonPath("$.workspaceId").value(1));
     }
 
     @Test

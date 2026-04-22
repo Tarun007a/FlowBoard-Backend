@@ -10,6 +10,8 @@ import com.flowboard.list_service.entity.TaskList;
 import com.flowboard.list_service.exception.IllegalOperationException;
 import com.flowboard.list_service.exception.TaskListNotFoundException;
 import com.flowboard.list_service.mapper.Mapper;
+import com.flowboard.list_service.mapper.impl.TaskListRequestMapper;
+import com.flowboard.list_service.mapper.impl.TaskListResponseMapper;
 import com.flowboard.list_service.repository.TaskListRepository;
 import com.flowboard.list_service.service.TaskListService;
 import lombok.RequiredArgsConstructor;
@@ -40,8 +42,8 @@ Workspace PRIVATE + Board PRIVATE
 @Slf4j
 public class TaskListServiceImpl implements TaskListService {
     private final TaskListRepository taskListRepository;
-    private final Mapper<TaskListRequestDto, TaskList> taskListRequestMapper;
-    private final Mapper<TaskList, TaskListResponseDto> taskListResponseMapper;
+    private final TaskListRequestMapper taskListRequestMapper;
+    private final TaskListResponseMapper taskListResponseMapper;
     private final BoardClient boardClient;
     private final WorkspaceClient workspaceClient;
 

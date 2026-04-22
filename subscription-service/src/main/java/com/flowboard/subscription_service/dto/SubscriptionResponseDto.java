@@ -1,7 +1,6 @@
 package com.flowboard.subscription_service.dto;
 
 import com.flowboard.subscription_service.entity.SubscriptionPlan;
-import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDate;

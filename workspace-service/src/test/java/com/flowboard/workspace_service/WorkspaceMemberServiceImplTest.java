@@ -9,7 +9,8 @@ import com.flowboard.workspace_service.entity.WorkspaceMember;
 import com.flowboard.workspace_service.exception.IllegalOperationException;
 import com.flowboard.workspace_service.exception.WorkspaceMemberNotFoundException;
 import com.flowboard.workspace_service.exception.WorkspaceNotFoundException;
-import com.flowboard.workspace_service.mapper.Mapper;
+import com.flowboard.workspace_service.mapper.impl.WorkspaceMemberRequestMapper;
+import com.flowboard.workspace_service.mapper.impl.WorkspaceMemberResponseMapper;
 import com.flowboard.workspace_service.repository.WorkspaceMemberRepository;
 import com.flowboard.workspace_service.repository.WorkspaceRepository;
 import com.flowboard.workspace_service.service.impl.WorkspaceMemberServiceImpl;
@@ -42,10 +43,10 @@ class WorkspaceMemberServiceImplTest {
     private WorkspaceMemberRepository workspaceMemberRepository;
 
     @Mock
-    private Mapper<WorkspaceMemberRequestDto, WorkspaceMember> workspaceMemberRequestMapper;
+    private WorkspaceMemberRequestMapper workspaceMemberRequestMapper;
 
     @Mock
-    private Mapper<WorkspaceMember, WorkspaceMemberResponseDto> workspaceMemberResponseMapper;
+    private WorkspaceMemberResponseMapper workspaceMemberResponseMapper;
 
     @Mock
     private UserClient userClient;
@@ -89,10 +90,11 @@ class WorkspaceMemberServiceImplTest {
                 .existsByWorkspaceIdAndUserId(1, 2))
                 .thenReturn(false);
 
+        // FIXED: create flow maps DTO -> entity
         when(workspaceMemberRequestMapper.mapTo(dto))
                 .thenReturn(member);
 
-        when(workspaceMemberRepository.save(member))
+        when(workspaceMemberRepository.save(any(WorkspaceMember.class)))
                 .thenReturn(member);
 
         when(workspaceMemberResponseMapper.mapTo(member))
@@ -197,7 +199,8 @@ class WorkspaceMemberServiceImplTest {
                 .findByWorkspaceId(anyInt(), any()))
                 .thenReturn(page);
 
-        when(workspaceMemberResponseMapper.mapTo(any(WorkspaceMember.class)))
+        when(workspaceMemberResponseMapper
+                .mapTo(any(WorkspaceMember.class)))
                 .thenReturn(new WorkspaceMemberResponseDto());
 
         CustomPageResponse<WorkspaceMemberResponseDto> result =

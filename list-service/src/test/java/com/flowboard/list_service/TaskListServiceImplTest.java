@@ -9,6 +9,8 @@ import com.flowboard.list_service.entity.TaskList;
 import com.flowboard.list_service.exception.IllegalOperationException;
 import com.flowboard.list_service.exception.TaskListNotFoundException;
 import com.flowboard.list_service.mapper.Mapper;
+import com.flowboard.list_service.mapper.impl.TaskListRequestMapper;
+import com.flowboard.list_service.mapper.impl.TaskListResponseMapper;
 import com.flowboard.list_service.repository.TaskListRepository;
 import com.flowboard.list_service.service.impl.TaskListServiceImpl;
 import org.junit.jupiter.api.Test;
@@ -31,10 +33,10 @@ class TaskListServiceImplTest {
     private TaskListRepository taskListRepository;
 
     @Mock
-    private Mapper<TaskListRequestDto, TaskList> taskListRequestMapper;
+    private TaskListRequestMapper taskListRequestMapper;
 
     @Mock
-    private Mapper<TaskList, TaskListResponseDto> taskListResponseMapper;
+    private TaskListResponseMapper taskListResponseMapper;
 
     @Mock
     private BoardClient boardClient;
@@ -57,19 +59,45 @@ class TaskListServiceImplTest {
     @Test
     void createTaskList_positive() {
 
+        Integer userId = 1;
+
         TaskListRequestDto dto = new TaskListRequestDto();
-        dto.setBoardId(1);
+        dto.setBoardId(10);
+        dto.setName("Todo");
 
-        TaskList list = getList();
+        TaskList entity = new TaskList();
+        entity.setBoardId(10);
+        entity.setName("Todo");
 
-        when(taskListRequestMapper.mapTo(dto)).thenReturn(list);
-        when(boardClient.isPrivate(1)).thenReturn(false);
-        when(boardClient.getWorkspaceId(1)).thenReturn(10);
-        when(workspaceClient.isMember(10, 1)).thenReturn(true);
-        when(taskListRepository.maxPosition(1)).thenReturn(0);
-        when(taskListRepository.save(any(TaskList.class))).thenReturn(list);
+        TaskList saved = new TaskList();
+        saved.setListId(1);
+        saved.setBoardId(10);
+        saved.setName("Todo");
+        saved.setPosition(1);
 
-        taskListService.createTaskList(dto, 1);
+        TaskListResponseDto response = new TaskListResponseDto();
+        response.setListId(1);
+        response.setName("Todo");
+
+        when(boardClient.isPrivate(10)).thenReturn(false);
+        when(boardClient.getWorkspaceId(10)).thenReturn(100);
+        when(workspaceClient.isMember(100, 1)).thenReturn(true);
+
+        when(taskListRequestMapper.mapTo(dto)).thenReturn(entity);
+
+        when(taskListRepository.maxPosition(10)).thenReturn(0);
+
+        when(taskListRepository.save(entity)).thenReturn(saved);
+
+        when(taskListResponseMapper.mapTo(saved)).thenReturn(response);
+
+        TaskListResponseDto result =
+                taskListService.createTaskList(dto, userId);
+
+        assertNotNull(result);
+        assertEquals("Todo", result.getName());
+
+        verify(taskListRepository).save(entity);
     }
 
     @Test

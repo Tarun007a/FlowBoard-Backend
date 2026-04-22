@@ -1,6 +1,8 @@
 package com.flowboard.notification_service.service.impl;
 
 import com.flowboard.notification_service.Mapper.Mapper;
+import com.flowboard.notification_service.Mapper.impl.NotificationRequestDtoMapper;
+import com.flowboard.notification_service.Mapper.impl.NotificationResponseDtoMapper;
 import com.flowboard.notification_service.client.UserClient;
 import com.flowboard.notification_service.dto.BulkNotificationRequestDto;
 import com.flowboard.notification_service.dto.NotificationRequestDto;
@@ -28,8 +30,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class NotificationServiceImpl implements NotificationService {
     private final NotificationRepository notificationRepository;
-    private final Mapper<NotificationRequestDto, Notification> notificationRequestMapper;
-    private final Mapper<Notification, NotificationResponseDto> notificationResponseMapper;
+    private final NotificationRequestDtoMapper notificationRequestMapper;
+    private final NotificationResponseDtoMapper notificationResponseMapper;
     private final EmailService emailService;
     private final UserClient userClient;
 

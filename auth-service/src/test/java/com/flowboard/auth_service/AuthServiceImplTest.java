@@ -1,6 +1,7 @@
 package com.flowboard.auth_service;
 
-import com.flowboard.auth_service.Mapper.Mapper;
+import com.flowboard.auth_service.Mapper.impl.SignupRequestMapper;
+import com.flowboard.auth_service.Mapper.impl.UserResponseMapper;
 import com.flowboard.auth_service.dto.ForgetPasswordDto;
 import com.flowboard.auth_service.dto.LoginDto;
 import com.flowboard.auth_service.dto.SignupDto;
@@ -24,28 +25,30 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class AuthServiceImplTest {
+
     @Mock
     private UserRepository userRepository;
 
-    @Mock(name = "signupRequestMapper")
-    private Mapper<SignupDto, User> signupRequestMapper;
+    @Mock
+    private SignupRequestMapper signupRequestMapper;
 
-    @Mock(name = "userResponseMapper")
-    private Mapper<User, UserDto> userResponseMapper;
+    @Mock
+    private UserResponseMapper userResponseMapper;
 
     @Mock
     private AuthenticationManager authenticationManager;
@@ -80,57 +83,77 @@ class AuthServiceImplTest {
     @Test
     void register_withValidData_returnsUserDto() {
 
-        ReflectionTestUtils.setField(authService, "url", "http://localhost:8081/api/v1/");
+        ReflectionTestUtils.setField(authService, "url", "http://localhost:8081/");
 
-        SignupDto signupDto =
-                new SignupDto("John", "john@gmail.com", "Password@1");
+        SignupDto signupDto = new SignupDto();
+        signupDto.setFullName("Tarun");
+        signupDto.setEmail("tarun@gmail.com");
+        signupDto.setPassword("123456");
 
         User user = new User();
-        user.setEmail("john@gmail.com");
-        user.setPassword("Password@1");
+        user.setFullName("Tarun");
+        user.setEmail("tarun@gmail.com");
+        user.setPassword("123456");
 
         User savedUser = new User();
         savedUser.setUserId(1);
-        savedUser.setEmail("john@gmail.com");
+        savedUser.setFullName("Tarun");
+        savedUser.setEmail("tarun@gmail.com");
+        savedUser.setPassword("encodedPassword");
 
-        UserVerification verification =
-                UserVerification.builder()
-                        .userId(1)
-                        .token("token123")
-                        .build();
+        UserDto userDto = new UserDto();
+        userDto.setUserId(1);
+        userDto.setFullName("Tarun");
+        userDto.setEmail("tarun@gmail.com");
 
-        UserDto response =
-                new UserDto("John", "john@gmail.com", null, 1);
+        UserVerification verification = UserVerification.builder()
+                .userId(1)
+                .token("token123")
+                .build();
 
-        when(userRepository.findByEmail("john@gmail.com"))
+        when(userRepository.findByEmail("tarun@gmail.com"))
                 .thenReturn(Optional.empty());
 
-        when(signupRequestMapper.mapTo(any()))
+        when(signupRequestMapper.mapTo(signupDto))
                 .thenReturn(user);
 
-        when(userResponseMapper.mapTo(any()))
-                .thenReturn(response);
-
-        when(passwordEncoder.encode("Password@1"))
+        when(passwordEncoder.encode("123456"))
                 .thenReturn("encodedPassword");
+
+        when(userRepository.save(any(User.class)))
+                .thenReturn(savedUser);
 
         when(userVerificationService.save(any(UserVerification.class)))
                 .thenReturn(verification);
 
         when(userResponseMapper.mapTo(savedUser))
-                .thenReturn(response);
+                .thenReturn(userDto);
+
+        doNothing().when(emailService)
+                .sendVerificationEmail(anyString(), anyString());
 
         UserDto result = authService.register(signupDto);
 
-        assertEquals("john@gmail.com", result.getEmail());
-        verify(emailService).sendVerificationEmail(any(), any());
+        assertNotNull(result);
+        assertEquals(1, result.getUserId());
+        assertEquals("Tarun", result.getFullName());
+        assertEquals("tarun@gmail.com", result.getEmail());
+
+        verify(userRepository).findByEmail("tarun@gmail.com");
+        verify(signupRequestMapper).mapTo(signupDto);
+        verify(passwordEncoder).encode("123456");
+        verify(userRepository).save(any(User.class));
+        verify(userVerificationService).save(any(UserVerification.class));
+        verify(emailService).sendVerificationEmail(
+                eq("tarun@gmail.com"),
+                contains("token123")
+        );
+        verify(userResponseMapper).mapTo(savedUser);
     }
 
     @Test
     void register_withExistingActiveUser_throwsException() {
-
-        SignupDto signupDto =
-                new SignupDto("John", "john@gmail.com", "Password@1");
+        SignupDto signupDto = new SignupDto("John", "john@gmail.com", "Password@1");
 
         User user = new User();
         user.setActive(true);
@@ -145,11 +168,15 @@ class AuthServiceImplTest {
     @Test
     void login_withValidData_returnsToken() {
 
-        LoginDto loginDto =
-                new LoginDto("john@gmail.com", "Password@1");
+        LoginDto loginDto = new LoginDto("john@gmail.com", "Password@1");
 
         User user = new User();
         user.setUserId(1);
+
+        Authentication auth = mock(Authentication.class);
+
+        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
+                .thenReturn(auth);
 
         when(userRepository.findByEmail("john@gmail.com"))
                 .thenReturn(Optional.of(user));
@@ -165,8 +192,12 @@ class AuthServiceImplTest {
     @Test
     void login_withWrongEmail_throwsException() {
 
-        LoginDto loginDto =
-                new LoginDto("wrong@gmail.com", "Password@1");
+        LoginDto loginDto = new LoginDto("wrong@gmail.com", "Password@1");
+
+        Authentication auth = mock(Authentication.class);
+
+        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
+                .thenReturn(auth);
 
         when(userRepository.findByEmail("wrong@gmail.com"))
                 .thenReturn(Optional.empty());
@@ -178,11 +209,10 @@ class AuthServiceImplTest {
     @Test
     void verify_withValidToken_updatesUser() {
 
-        UserVerification verification =
-                UserVerification.builder()
-                        .userId(1)
-                        .token("abc")
-                        .build();
+        UserVerification verification = UserVerification.builder()
+                .userId(1)
+                .token("abc")
+                .build();
 
         User user = new User();
         user.setUserId(1);
@@ -194,6 +224,8 @@ class AuthServiceImplTest {
         when(userService.findById(1))
                 .thenReturn(user);
 
+        doNothing().when(userVerificationService).deleteByUserId(1);
+
         authService.verify("abc");
 
         verify(userRepository).save(user);
@@ -202,8 +234,7 @@ class AuthServiceImplTest {
     @Test
     void sendOtp_withValidEmail_callsService() {
 
-        doNothing().when(userOtpService)
-                .sendOtp("john@gmail.com");
+        doNothing().when(userOtpService).sendOtp("john@gmail.com");
 
         authService.sendOtp("john@gmail.com");
 
@@ -214,11 +245,7 @@ class AuthServiceImplTest {
     void changePassword_withValidOtp_updatesPassword() {
 
         ForgetPasswordDto dto =
-                new ForgetPasswordDto(
-                        "john@gmail.com",
-                        "123456",
-                        "NewPass@1"
-                );
+                new ForgetPasswordDto("john@gmail.com", "123456", "NewPass@1");
 
         User user = new User();
         user.setUserId(1);
@@ -246,11 +273,7 @@ class AuthServiceImplTest {
     void changePassword_withWrongOtp_throwsException() {
 
         ForgetPasswordDto dto =
-                new ForgetPasswordDto(
-                        "john@gmail.com",
-                        "999999",
-                        "NewPass@1"
-                );
+                new ForgetPasswordDto("john@gmail.com", "999999", "NewPass@1");
 
         User user = new User();
         user.setUserId(1);
@@ -274,11 +297,7 @@ class AuthServiceImplTest {
     void changePassword_withExpiredOtp_throwsException() {
 
         ForgetPasswordDto dto =
-                new ForgetPasswordDto(
-                        "john@gmail.com",
-                        "123456",
-                        "NewPass@1"
-                );
+                new ForgetPasswordDto("john@gmail.com", "123456", "NewPass@1");
 
         User user = new User();
         user.setUserId(1);

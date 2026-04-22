@@ -11,7 +11,8 @@ import com.flowboard.card_service.entity.Priority;
 import com.flowboard.card_service.entity.Status;
 import com.flowboard.card_service.exception.CardNotFoundException;
 import com.flowboard.card_service.exception.IllegalOperationException;
-import com.flowboard.card_service.mapper.Mapper;
+import com.flowboard.card_service.mapper.impl.CardRequestMapper;
+import com.flowboard.card_service.mapper.impl.CardResponseMapper;
 import com.flowboard.card_service.repository.CardRepository;
 import com.flowboard.card_service.service.NotificationProcedure;
 import com.flowboard.card_service.service.impl.CardServiceImpl;
@@ -26,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -41,10 +43,10 @@ class CardServiceImplTest {
     private CardRepository cardRepository;
 
     @Mock
-    private Mapper<CardRequestDto, Card> requestMapper;
+    private CardRequestMapper requestMapper;
 
     @Mock
-    private Mapper<Card, CardResponseDto> responseMapper;
+    private CardResponseMapper responseMapper;
 
     @Mock
     private WorkspaceClient workspaceClient;
@@ -91,18 +93,36 @@ class CardServiceImplTest {
     void createCard_positive() {
 
         CardRequestDto dto = new CardRequestDto();
-        Card card = getCard();
+
+        Card card = new Card();
+        card.setBoardId(10);
+        card.setListId(20);
+        card.setAssigneeId(5);
+        card.setPriority(Priority.HIGH);
+        card.setTitle("Task");
+
+        Card saved = new Card();
+        saved.setCardId(1);
+        saved.setBoardId(10);
+
+        CardResponseDto response = new CardResponseDto();
 
         when(requestMapper.mapTo(dto)).thenReturn(card);
-        allowModification();
-        when(cardRepository.maxPosition(1)).thenReturn(0);
-        when(cardRepository.save(any(Card.class))).thenReturn(card);
-        when(responseMapper.mapTo(any(Card.class)))
-                .thenReturn(new CardResponseDto());
 
-        cardService.createCard(dto, 1);
+        when(boardClient.isPrivate(10)).thenReturn(false);
+        when(boardClient.getWorkspaceId(10)).thenReturn(100);
 
-        verify(cardRepository).save(any(Card.class));
+        when(workspaceClient.isMember(100, 1)).thenReturn(true); // creator
+        when(workspaceClient.isMember(100, 5)).thenReturn(true); // assignee
+
+        when(cardRepository.maxPosition(20)).thenReturn(0);
+        when(cardRepository.save(card)).thenReturn(saved);
+
+        when(responseMapper.mapTo(saved)).thenReturn(response);
+
+        CardResponseDto result = cardService.createCard(dto, 1);
+
+        assertNotNull(result);
     }
 
     @Test
@@ -282,20 +302,31 @@ class CardServiceImplTest {
     @Test
     void assignCard_positive() {
 
-        Card card = getCard();
+        Card card = new Card();
+        card.setCardId(1);
+        card.setBoardId(10);
+        card.setTitle("Task");
 
-        when(cardRepository.findById(1))
-                .thenReturn(Optional.of(card));
+        CardResponseDto response = new CardResponseDto();
 
-        allowModification();
+        when(cardRepository.findById(1)).thenReturn(Optional.of(card));
 
-        when(cardRepository.save(card))
-                .thenReturn(card);
+        when(boardClient.isPrivate(10)).thenReturn(false);
+        when(boardClient.getWorkspaceId(10)).thenReturn(100);
 
-        when(responseMapper.mapTo(any(Card.class)))
-                .thenReturn(new CardResponseDto());
+        when(workspaceClient.isMember(100, 1)).thenReturn(true);
 
-        cardService.assignCard(1, 2, 1);
+        // second validation uses assigneeId as boardId in your code
+        when(boardClient.isPrivate(5)).thenReturn(false);
+        when(boardClient.getWorkspaceId(5)).thenReturn(100);
+        when(workspaceClient.isMember(100, 1)).thenReturn(true);
+
+        when(cardRepository.save(card)).thenReturn(card);
+        when(responseMapper.mapTo(card)).thenReturn(response);
+
+        CardResponseDto result = cardService.assignCard(1, 5, 1);
+
+        assertNotNull(result);
     }
 
     @Test
@@ -324,21 +355,25 @@ class CardServiceImplTest {
     @Test
     void updateStatus_positive() {
 
-        Card card = getCard();
+        Card card = new Card();
+        card.setCardId(1);
+        card.setBoardId(10);
 
-        when(cardRepository.findById(1))
-                .thenReturn(Optional.of(card));
+        CardResponseDto response = new CardResponseDto();
 
-        allowModification();
+        when(cardRepository.findById(1)).thenReturn(Optional.of(card));
 
-        when(responseMapper.mapTo(any(Card.class)))
-                .thenReturn(new CardResponseDto());
+        when(boardClient.isPrivate(10)).thenReturn(false);
+        when(boardClient.getWorkspaceId(10)).thenReturn(100);
+        when(workspaceClient.isMember(100, 1)).thenReturn(true);
 
-        cardService.updateStatus(
-                1,
-                Status.DONE,
-                1
-        );
+        when(cardRepository.save(card)).thenReturn(card);
+        when(responseMapper.mapTo(card)).thenReturn(response);
+
+        CardResponseDto result =
+                cardService.updateStatus(1, Status.DONE, 1);
+
+        assertNotNull(result);
     }
 
     @Test

@@ -6,6 +6,8 @@ import com.flowboard.comment_service.dto.CommentUpdateDto;
 import com.flowboard.comment_service.entity.Comment;
 import com.flowboard.comment_service.exception.CommentNotFoundException;
 import com.flowboard.comment_service.mapper.Mapper;
+import com.flowboard.comment_service.mapper.impl.CommentRequestMapper;
+import com.flowboard.comment_service.mapper.impl.CommentResponseMapper;
 import com.flowboard.comment_service.repository.CommentRepository;
 import com.flowboard.comment_service.service.CommentService;
 import com.flowboard.comment_service.service.NotificationService;
@@ -33,8 +35,8 @@ who are present in mentioned list
 @Slf4j
 public class CommentServiceImpl implements CommentService {
     private final CommentRepository commentRepository;
-    private final Mapper<CommentRequestDto, Comment> commentRequestMapper;
-    private final Mapper<Comment, CommentResponseDto> commentResponseMapper;
+    private final CommentRequestMapper commentRequestMapper;
+    private final CommentResponseMapper commentResponseMapper;
     private final NotificationService notificationService;
 
     @Override

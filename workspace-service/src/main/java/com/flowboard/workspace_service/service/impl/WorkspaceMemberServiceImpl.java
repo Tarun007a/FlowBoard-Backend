@@ -9,6 +9,8 @@ import com.flowboard.workspace_service.exception.IllegalOperationException;
 import com.flowboard.workspace_service.exception.WorkspaceMemberNotFoundException;
 import com.flowboard.workspace_service.exception.WorkspaceNotFoundException;
 import com.flowboard.workspace_service.mapper.Mapper;
+import com.flowboard.workspace_service.mapper.impl.WorkspaceMemberRequestMapper;
+import com.flowboard.workspace_service.mapper.impl.WorkspaceMemberResponseMapper;
 import com.flowboard.workspace_service.repository.WorkspaceMemberRepository;
 import com.flowboard.workspace_service.repository.WorkspaceRepository;
 import com.flowboard.workspace_service.service.WorkspaceMemberService;
@@ -28,8 +30,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class WorkspaceMemberServiceImpl implements WorkspaceMemberService {
     private final WorkspaceRepository workspaceRepository;
     private final WorkspaceMemberRepository workspaceMemberRepository;
-    private final Mapper<WorkspaceMemberRequestDto, WorkspaceMember> workspaceMemberRequestMapper;
-    private final Mapper<WorkspaceMember, WorkspaceMemberResponseDto> workspaceMemberResponseMapper;
+    private final WorkspaceMemberRequestMapper workspaceMemberRequestMapper;
+    private final WorkspaceMemberResponseMapper workspaceMemberResponseMapper;
     private final UserClient userClient;
 
     @Override

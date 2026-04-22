@@ -10,6 +10,8 @@ import com.flowboard.board_service.entity.Visibility;
 import com.flowboard.board_service.exception.BoardNotFoundException;
 import com.flowboard.board_service.exception.IllegalOperationException;
 import com.flowboard.board_service.mapper.Mapper;
+import com.flowboard.board_service.mapper.impl.BoardRequestMapper;
+import com.flowboard.board_service.mapper.impl.BoardResponseMapper;
 import com.flowboard.board_service.repository.BoardMemberRepository;
 import com.flowboard.board_service.repository.BoardRepository;
 import com.flowboard.board_service.service.BoardService;
@@ -30,8 +32,8 @@ import java.util.List;
 @Slf4j
 public class BoardServiceImpl implements BoardService {
     private final BoardRepository boardRepository;
-    private final Mapper<BoardRequestDto, Board> boardRequestMapper;
-    private final Mapper<Board, BoardResponseDto> boardResponseMapper;
+    private final BoardRequestMapper boardRequestMapper;
+    private final BoardResponseMapper boardResponseMapper;
     private final WorkspaceClient workspaceClient;
     private final BoardMemberRepository boardMemberRepository;
 

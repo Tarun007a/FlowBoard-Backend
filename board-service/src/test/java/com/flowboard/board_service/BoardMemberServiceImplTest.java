@@ -8,7 +8,8 @@ import com.flowboard.board_service.dto.UserDto;
 import com.flowboard.board_service.entity.Board;
 import com.flowboard.board_service.entity.BoardMember;
 import com.flowboard.board_service.exception.IllegalOperationException;
-import com.flowboard.board_service.mapper.Mapper;
+import com.flowboard.board_service.mapper.impl.BoardMemberRequestMapper;
+import com.flowboard.board_service.mapper.impl.BoardMemberResponseMapper;
 import com.flowboard.board_service.repository.BoardMemberRepository;
 import com.flowboard.board_service.repository.BoardRepository;
 import com.flowboard.board_service.service.impl.BoardMemberServiceImpl;
@@ -40,10 +41,10 @@ class BoardMemberServiceImplTest {
     private BoardMemberRepository boardMemberRepository;
 
     @Mock
-    private Mapper<BoardMemberRequestDto, BoardMember> boardMemberRequestMapper;
+    private BoardMemberRequestMapper boardMemberRequestMapper;
 
     @Mock
-    private Mapper<BoardMember, BoardMemberResponseDto> boardMemberResponseMapper;
+    private BoardMemberResponseMapper boardMemberResponseMapper;
 
     @Mock
     private WorkspaceClient workspaceClient;

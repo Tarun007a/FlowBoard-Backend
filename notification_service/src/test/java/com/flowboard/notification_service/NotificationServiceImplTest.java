@@ -1,6 +1,8 @@
 package com.flowboard.notification_service;
 
 import com.flowboard.notification_service.Mapper.Mapper;
+import com.flowboard.notification_service.Mapper.impl.NotificationRequestDtoMapper;
+import com.flowboard.notification_service.Mapper.impl.NotificationResponseDtoMapper;
 import com.flowboard.notification_service.dto.BulkNotificationRequestDto;
 import com.flowboard.notification_service.dto.NotificationRequestDto;
 import com.flowboard.notification_service.dto.NotificationResponseDto;
@@ -36,10 +38,10 @@ class NotificationServiceImplTest {
     private NotificationRepository notificationRepository;
 
     @Mock
-    private Mapper<NotificationRequestDto, Notification> requestMapper;
+    private NotificationRequestDtoMapper requestMapper;
 
     @Mock
-    private Mapper<Notification, NotificationResponseDto> responseMapper;
+    private NotificationResponseDtoMapper responseMapper;
 
     @InjectMocks
     private NotificationServiceImpl notificationService;

@@ -8,6 +8,7 @@ import com.flowboard.card_service.entity.Card;
 import com.flowboard.card_service.entity.CardActivity;
 import com.flowboard.card_service.exception.IllegalOperationException;
 import com.flowboard.card_service.mapper.Mapper;
+import com.flowboard.card_service.mapper.impl.CardActivityResponseMapper;
 import com.flowboard.card_service.repository.CardActivityRepository;
 import com.flowboard.card_service.repository.CardRepository;
 import com.flowboard.card_service.service.CardActivityService;
@@ -24,7 +25,7 @@ public class CardActivityServiceImpl implements CardActivityService {
     private final CardRepository cardRepository;
     private final BoardClient boardClient;
     private final WorkspaceClient workspaceClient;
-    private final Mapper<CardActivity, CardActivityResponseDto> responseMapper;
+    private final CardActivityResponseMapper responseMapper;
 
     private Pageable getPageable(int page, int size, String sortBy, String direction) {
         Sort sort = direction.equalsIgnoreCase("desc")

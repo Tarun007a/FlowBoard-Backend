@@ -2,7 +2,6 @@ package com.flowboard.auth_service.Mapper.impl;
 
 import com.flowboard.auth_service.Mapper.Mapper;
 import com.flowboard.auth_service.dto.SignupDto;
-import com.flowboard.auth_service.dto.UserDto;
 import com.flowboard.auth_service.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;

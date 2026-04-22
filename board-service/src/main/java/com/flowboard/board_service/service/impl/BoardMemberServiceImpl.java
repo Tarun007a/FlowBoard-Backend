@@ -12,6 +12,8 @@ import com.flowboard.board_service.exception.BoardMemberNotFoundException;
 import com.flowboard.board_service.exception.BoardNotFoundException;
 import com.flowboard.board_service.exception.IllegalOperationException;
 import com.flowboard.board_service.mapper.Mapper;
+import com.flowboard.board_service.mapper.impl.BoardMemberRequestMapper;
+import com.flowboard.board_service.mapper.impl.BoardMemberResponseMapper;
 import com.flowboard.board_service.repository.BoardMemberRepository;
 import com.flowboard.board_service.repository.BoardRepository;
 import com.flowboard.board_service.service.BoardMemberService;
@@ -32,8 +34,8 @@ import java.util.List;
 public class BoardMemberServiceImpl implements BoardMemberService {
     private final BoardRepository boardRepository;
     private final BoardMemberRepository boardMemberRepository;
-    private final Mapper<BoardMemberRequestDto, BoardMember> boardMemberRequestMapper;
-    private final Mapper<BoardMember, BoardMemberResponseDto> boardMemberResponseMapper;
+    private final BoardMemberRequestMapper boardMemberRequestMapper;
+    private final BoardMemberResponseMapper boardMemberResponseMapper;
     private final WorkspaceClient workspaceClient;
     private final UserClient userClient;
 

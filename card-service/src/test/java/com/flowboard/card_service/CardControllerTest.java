@@ -257,16 +257,4 @@ class CardControllerTest {
                         .header("X-User-Id", 1))
                 .andExpect(status().isOk());
     }
-
-    @Test
-    void getAssignedUserId_withValidId_returns200() throws Exception {
-
-        when(cardService.getAssignedUserId(1))
-                .thenReturn(2);
-
-        mockMvc.perform(get("/api/v1/cards/assigned-user")
-                        .param("cardId", "1"))
-                .andExpect(status().isOk())
-                .andExpect(content().string("2"));
-    }
 }

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flowboard.workspace_service.controller.WorkspaceController;
 import com.flowboard.workspace_service.dto.WorkspaceRequestDto;
 import com.flowboard.workspace_service.dto.WorkspaceResponseDto;
+import com.flowboard.workspace_service.entity.Visibility;
 import com.flowboard.workspace_service.service.WorkspaceService;
 import com.flowboard.workspace_service.util.CustomPageResponse;
 import org.junit.jupiter.api.Test;
@@ -50,6 +51,11 @@ class WorkspaceControllerTest {
         WorkspaceRequestDto request =
                 new WorkspaceRequestDto();
 
+        request.setName("Workspace One");
+        request.setDescription("Demo workspace");
+        request.setLogoUrl("logo.png");
+        request.setVisibility(Visibility.PUBLIC);
+
         WorkspaceResponseDto response =
                 new WorkspaceResponseDto();
         response.setWorkspaceId(1);
@@ -70,6 +76,11 @@ class WorkspaceControllerTest {
 
         WorkspaceRequestDto request =
                 new WorkspaceRequestDto();
+
+        request.setName("Updated Workspace");
+        request.setDescription("Updated Desc");
+        request.setLogoUrl("newlogo.png");
+        request.setVisibility(Visibility.PRIVATE);
 
         WorkspaceResponseDto response =
                 new WorkspaceResponseDto();

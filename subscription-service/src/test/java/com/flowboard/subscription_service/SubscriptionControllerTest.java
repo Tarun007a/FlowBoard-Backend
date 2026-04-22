@@ -7,6 +7,7 @@ import com.flowboard.subscription_service.dto.RazorPayResponseDto;
 import com.flowboard.subscription_service.dto.SubscriptionPlanResponseDto;
 import com.flowboard.subscription_service.dto.SubscriptionRequestDto;
 import com.flowboard.subscription_service.dto.SubscriptionResponseDto;
+import com.flowboard.subscription_service.entity.SubscriptionPlan;
 import com.flowboard.subscription_service.service.SubscriptionService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,11 +44,10 @@ class SubscriptionControllerTest {
     @Test
     void buySubscription_positive() throws Exception {
 
-        SubscriptionRequestDto request =
-                new SubscriptionRequestDto();
+        SubscriptionRequestDto request = new SubscriptionRequestDto();
+        request.setPlan(SubscriptionPlan.BASIC);
 
-        RazorPayResponseDto response =
-                new RazorPayResponseDto();
+        RazorPayResponseDto response = new RazorPayResponseDto();
         response.setOrderId("order_123");
 
         when(subscriptionService.buySubscription(
@@ -60,8 +60,7 @@ class SubscriptionControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.orderId")
-                        .value("order_123"));
+                .andExpect(jsonPath("$.orderId").value("order_123"));
     }
 
     @Test
@@ -76,11 +75,13 @@ class SubscriptionControllerTest {
     @Test
     void verifyPayment_positive() throws Exception {
 
-        PaymentVerificationDto request =
-                new PaymentVerificationDto();
+        PaymentVerificationDto request = new PaymentVerificationDto();
+        request.setRazorpayOrderId("order_123");
+        request.setRazorpayPaymentId("pay_123");
+        request.setRazorpaySignature("sig_123");
+        request.setPlan(SubscriptionPlan.BASIC);
 
-        SubscriptionResponseDto response =
-                new SubscriptionResponseDto();
+        SubscriptionResponseDto response = new SubscriptionResponseDto();
         response.setId(1);
 
         when(subscriptionService.verifyAndActivate(
@@ -93,8 +94,7 @@ class SubscriptionControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id")
-                        .value(1));
+                .andExpect(jsonPath("$.id").value(1));
     }
 
     @Test
@@ -109,8 +109,7 @@ class SubscriptionControllerTest {
     @Test
     void getMySubscription_positive() throws Exception {
 
-        SubscriptionResponseDto response =
-                new SubscriptionResponseDto();
+        SubscriptionResponseDto response = new SubscriptionResponseDto();
         response.setId(1);
 
         when(subscriptionService.getDetails(1))
@@ -119,8 +118,7 @@ class SubscriptionControllerTest {
         mockMvc.perform(get("/api/v1/subscriptions/my")
                         .header("X-User-Id", "1"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id")
-                        .value(1));
+                .andExpect(jsonPath("$.id").value(1));
     }
 
     @Test
@@ -134,20 +132,25 @@ class SubscriptionControllerTest {
     void getPlanDetails_positive() throws Exception {
 
         SubscriptionPlanResponseDto dto =
-                new SubscriptionPlanResponseDto();
+                SubscriptionPlanResponseDto.builder()
+                        .durationDays(30)
+                        .price(499)
+                        .build();
 
         when(subscriptionService.getPlanDetails())
                 .thenReturn(List.of(dto));
 
         mockMvc.perform(get("/api/v1/subscriptions/details"))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].durationDays").value(30))
+                .andExpect(jsonPath("$[0].price").value(499));
     }
 
     @Test
     void getPlanDetails_negative() throws Exception {
 
         when(subscriptionService.getPlanDetails())
-                .thenThrow(new RuntimeException());
+                .thenThrow(new RuntimeException("Failed"));
 
         mockMvc.perform(get("/api/v1/subscriptions/details"))
                 .andExpect(status().isBadRequest());

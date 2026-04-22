@@ -7,7 +7,8 @@ import com.flowboard.board_service.dto.BoardUpdateRequestDto;
 import com.flowboard.board_service.entity.Board;
 import com.flowboard.board_service.entity.Visibility;
 import com.flowboard.board_service.exception.IllegalOperationException;
-import com.flowboard.board_service.mapper.Mapper;
+import com.flowboard.board_service.mapper.impl.BoardRequestMapper;
+import com.flowboard.board_service.mapper.impl.BoardResponseMapper;
 import com.flowboard.board_service.repository.BoardMemberRepository;
 import com.flowboard.board_service.repository.BoardRepository;
 import com.flowboard.board_service.service.impl.BoardServiceImpl;
@@ -16,10 +17,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 
-import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -36,10 +34,10 @@ class BoardServiceImplTest {
     private BoardRepository boardRepository;
 
     @Mock
-    private Mapper<BoardRequestDto, Board> boardRequestMapper;
+    private BoardRequestMapper boardRequestMapper;
 
     @Mock
-    private Mapper<Board, BoardResponseDto> boardResponseMapper;
+    private BoardResponseMapper boardResponseMapper;
 
     @Mock
     private WorkspaceClient workspaceClient;

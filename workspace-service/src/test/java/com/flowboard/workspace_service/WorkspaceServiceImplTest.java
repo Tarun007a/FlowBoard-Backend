@@ -7,7 +7,8 @@ import com.flowboard.workspace_service.entity.Workspace;
 import com.flowboard.workspace_service.entity.WorkspaceMember;
 import com.flowboard.workspace_service.exception.IllegalOperationException;
 import com.flowboard.workspace_service.exception.WorkspaceNotFoundException;
-import com.flowboard.workspace_service.mapper.Mapper;
+import com.flowboard.workspace_service.mapper.impl.WorkspaceRequestMapper;
+import com.flowboard.workspace_service.mapper.impl.WorkspaceResponseMapper;
 import com.flowboard.workspace_service.repository.WorkspaceMemberRepository;
 import com.flowboard.workspace_service.repository.WorkspaceRepository;
 import com.flowboard.workspace_service.service.impl.WorkspaceServiceImpl;
@@ -28,7 +29,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -39,10 +39,10 @@ class WorkspaceServiceImplTest {
     private WorkspaceRepository workspaceRepository;
 
     @Mock
-    private Mapper<WorkspaceRequestDto, Workspace> workspaceRequestMapper;
+    private WorkspaceRequestMapper workspaceRequestMapper;
 
     @Mock
-    private Mapper<Workspace, WorkspaceResponseDto> workspaceResponseMapper;
+    private WorkspaceResponseMapper workspaceResponseMapper;
 
     @Mock
     private WorkspaceMemberRepository workspaceMemberRepository;

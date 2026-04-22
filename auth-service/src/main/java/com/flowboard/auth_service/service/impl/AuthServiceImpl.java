@@ -1,6 +1,8 @@
 package com.flowboard.auth_service.service.impl;
 
 import com.flowboard.auth_service.Mapper.Mapper;
+import com.flowboard.auth_service.Mapper.impl.SignupRequestMapper;
+import com.flowboard.auth_service.Mapper.impl.UserResponseMapper;
 import com.flowboard.auth_service.dto.ForgetPasswordDto;
 import com.flowboard.auth_service.dto.LoginDto;
 import com.flowboard.auth_service.dto.SignupDto;
@@ -33,8 +35,8 @@ import java.util.UUID;
 @Slf4j
 public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
-    private final Mapper<SignupDto, User> signupRequestMapper;
-    private final Mapper<User, UserDto> userResponseMapper;
+    private final SignupRequestMapper signupRequestMapper;
+    private final UserResponseMapper userResponseMapper;
     private final AuthenticationManager authenticationManager;
     private final BCryptPasswordEncoder passwordEncoder;
     private final JwtService jwtService;
@@ -82,8 +84,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public String login(LoginDto loginDto) {
         log.info("login service called");
-        Authentication authentication = authenticationManager
-                .authenticate(new UsernamePasswordAuthenticationToken
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken
                         (loginDto.getEmail(), loginDto.getPassword()));
         log.info("login successful");
         User user = userRepository.findByEmail(loginDto.getEmail())

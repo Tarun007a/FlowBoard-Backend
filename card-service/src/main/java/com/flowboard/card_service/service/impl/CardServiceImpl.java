@@ -10,6 +10,8 @@ import com.flowboard.card_service.entity.Status;
 import com.flowboard.card_service.exception.CardNotFoundException;
 import com.flowboard.card_service.exception.IllegalOperationException;
 import com.flowboard.card_service.mapper.Mapper;
+import com.flowboard.card_service.mapper.impl.CardRequestMapper;
+import com.flowboard.card_service.mapper.impl.CardResponseMapper;
 import com.flowboard.card_service.repository.CardRepository;
 import com.flowboard.card_service.service.CardService;
 import com.flowboard.card_service.service.NotificationProcedure;
@@ -29,8 +31,8 @@ import java.util.stream.Collectors;
 @Slf4j
 public class CardServiceImpl implements CardService {
     private final CardRepository cardRepository;
-    private final Mapper<CardRequestDto, Card> requestMapper;
-    private final Mapper<Card, CardResponseDto> responseMapper;
+    private final CardRequestMapper requestMapper;
+    private final CardResponseMapper responseMapper;
     private final WorkspaceClient workspaceClient;
     private final BoardClient boardClient;
     private final ListClient listClient;
@@ -151,6 +153,7 @@ public class CardServiceImpl implements CardService {
         card.setPriority(cardUpdateDto.getPriority());
         card.setStartDate(cardUpdateDto.getStartDate());
         card.setDueDate(cardUpdateDto.getDueDate());
+        card.setStatus(cardUpdateDto.getStatus());
 
         Card updatedCard = cardRepository.save(card);
         return responseMapper.mapTo(updatedCard);
