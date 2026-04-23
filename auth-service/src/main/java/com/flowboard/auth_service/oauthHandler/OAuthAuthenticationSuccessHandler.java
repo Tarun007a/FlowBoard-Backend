@@ -2,6 +2,7 @@ package com.flowboard.auth_service.oauthHandler;
 
 import com.flowboard.auth_service.entity.PROVIDER;
 import com.flowboard.auth_service.entity.User;
+import com.flowboard.auth_service.exception.UserNotFoundException;
 import com.flowboard.auth_service.repository.UserRepository;
 import com.flowboard.auth_service.service.JwtService;
 import jakarta.servlet.ServletException;
@@ -46,6 +47,7 @@ public class OAuthAuthenticationSuccessHandler extends SimpleUrlAuthenticationSu
         log.info("OAuth google login successful " + email + " " + name);
 
         Optional<User> userOptional = userRepo.findByEmail(email);
+
         Integer userId = null;
         if(userOptional.isEmpty()) {
             User user = new User();
@@ -57,7 +59,12 @@ public class OAuthAuthenticationSuccessHandler extends SimpleUrlAuthenticationSu
             userRepo.save(user);
             userId = user.getUserId();
         }
-        else userId = userOptional.get().getUserId();
+        else {
+            if(!userOptional.get().isActive()) {
+                throw  new UserNotFoundException("User is disabled");
+            }
+            userId = userOptional.get().getUserId();
+        }
 
         UserDetails userDetails = userDetailsService.loadUserByUsername(email);
         String token = jwtService.generateToken(email, "USER", userId);

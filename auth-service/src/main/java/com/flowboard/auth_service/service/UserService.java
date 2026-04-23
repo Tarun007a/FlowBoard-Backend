@@ -33,4 +33,14 @@ public interface UserService {
     public List<UserDto> getBulkUser(List<Integer> userIds);
 
     Boolean checkByUserId(Integer userId);
+
+    CustomPageResponse<UserDto> findAll(int page, int size, String sortBy, String direction);
+
+    void deleteUser(Integer userId);
+
+    void disable(Integer userId);
+
+    UserDto searchByEmail(String email);
+
+    void enable(Integer userId);
 }

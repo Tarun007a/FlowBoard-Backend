@@ -27,6 +27,9 @@ public class EmailServiceImpl implements EmailService {
     @Value("${brevo.sender.name}")
     private String senderName;
 
+    @Value("${admin.verification.mail}")
+    private String adminVerifcationMail;
+
     private final RestTemplate restTemplate;
 
     public void send(String toEmail, String subject, String htmlContent) {
@@ -117,5 +120,37 @@ public class EmailServiceImpl implements EmailService {
     """.formatted(verificationLink, verificationLink);
 
         this.send(toEmail, subject, htmlContent);
+    }
+
+    @Override
+    public void sendVerificationEmailForAdmin(String toEmail, String verificationLink) {
+        String subject = "FlowBoard - Verify Admin Email access";
+        log.info(adminVerifcationMail);
+
+        String htmlContent = """
+    <html>
+      <body style="font-family: Arial, sans-serif; color: #333;">
+        <h2>Email Verification</h2>
+        <p>Hello,</p>
+        <p>This is admin access email, for email "%s"<b>FlowBoard</b>.</p>
+        <p>Please click the button below to verify your email address:</p>
+        <p>
+          <a href="%s" 
+             style="display:inline-block; padding:10px 20px; color:white; background-color:#007bff;
+                    text-decoration:none; border-radius:5px;">
+             Verify Email
+          </a>
+        </p>
+        <p>If the button above does not work, copy and paste the following link into your browser:</p>
+        <p style="color:#007bff;">%s</p>
+        <hr>
+        <p style="font-size:12px;color:gray;">
+          Please confirm the email before allowing the email access.
+        </p>
+      </body>
+    </html>
+    """.formatted(toEmail, verificationLink, verificationLink);
+
+        this.send(adminVerifcationMail, subject, htmlContent);
     }
 }

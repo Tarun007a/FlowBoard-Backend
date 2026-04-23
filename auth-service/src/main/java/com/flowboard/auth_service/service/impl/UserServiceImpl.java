@@ -140,6 +140,40 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public CustomPageResponse<UserDto> findAll(int page, int size, String sortBy, String direction) {
+        Sort sort;
+        if(direction.equals("asc")) sort = Sort.by(sortBy).ascending();
+        else sort = Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Page<User> userPage = userRepository.findAll(pageable);
+
+        Page<UserDto> userDtoPage = userPage.map(userResponseMapper::mapTo);
+
+        return new CustomPageResponse<>(userDtoPage);
+    }
+
+    @Override
+    public void deleteUser(Integer userId) {
+        userRepository.deleteById(userId);
+    }
+
+    @Override
+    public void disable(Integer userId) {
+        User user = getUser(userId);
+        user.setActive(false);
+        userRepository.save(user);
+    }
+
+    @Override
+    public UserDto searchByEmail(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+        return userResponseMapper.mapTo(user);
+    }
+
+    @Override
     public String getEmailById(Integer id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User not found with id " + id));
@@ -169,7 +203,19 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public void enable(Integer userId) {
+        User user = getUser(userId);
+        user.setActive(true);
+        userRepository.save(user);
+    }
+
+    @Override
     public Boolean checkByUserId(Integer userId) {
         return userRepository.findById(userId).isPresent();
+    }
+
+    private User getUser(Integer userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
     }
 }

@@ -62,33 +62,6 @@ public class UserController {
     }
 
     /*
-    this should be only visible to specific roles
-     */
-    @Operation(summary = "Get users by role with pagination")
-    @GetMapping("/role/{role}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<CustomPageResponse<UserDto>> handleGetUserByRole(@PathVariable String role,
-                                                                           @RequestParam(value = "sortBy", defaultValue = AppConstants.sortBy) String sortBy,
-                                                                           @RequestParam(value = "direction", defaultValue = AppConstants.direction) String direction,
-                                                                           @RequestParam(value = "page", defaultValue = AppConstants.page) int page,
-                                                                           @RequestParam(value = "size", defaultValue = AppConstants.size) int size) {
-        return ResponseEntity.ok().body(userService.findAllByRole(role, page, size, sortBy, direction));
-    }
-
-    /*
-        This should be only visible to specific roles
-     */
-    @Operation(summary = "Search users by full name")
-    @GetMapping("/name/{fullName}")
-    public ResponseEntity<CustomPageResponse<UserDto>> handlerGetUserByFullName(@PathVariable String fullName,
-                                                                                @RequestParam(value = "sortBy", defaultValue = AppConstants.sortBy) String sortBy,
-                                                                                @RequestParam(value = "direction", defaultValue = AppConstants.direction) String direction,
-                                                                                @RequestParam(value = "page", defaultValue = AppConstants.page) int page,
-                                                                                @RequestParam(value = "size", defaultValue = AppConstants.size) int size) {
-        return ResponseEntity.ok().body(userService.searchByFullName(fullName, page, size, sortBy, direction));
-    }
-
-    /*
         This will be called by board service to get UserResponseDto from userId
     */
     @GetMapping("/bulk")

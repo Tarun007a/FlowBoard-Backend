@@ -7,6 +7,7 @@ import com.flowboard.auth_service.dto.ForgetPasswordDto;
 import com.flowboard.auth_service.dto.LoginDto;
 import com.flowboard.auth_service.dto.SignupDto;
 import com.flowboard.auth_service.dto.UserDto;
+import com.flowboard.auth_service.entity.ROLE;
 import com.flowboard.auth_service.entity.User;
 import com.flowboard.auth_service.entity.UserOtp;
 import com.flowboard.auth_service.entity.UserVerification;
@@ -82,6 +83,31 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    public UserDto registerAdmin(SignupDto signupDto) {
+        Optional<User> userOptional = userRepository.findByEmail(signupDto.getEmail());
+        if(userOptional.isPresent()) {
+            throw new UserNotFoundException("User already exist with email " + signupDto.getEmail());
+        }
+
+        User user = signupRequestMapper.mapTo(signupDto);
+        user.setRole(ROLE.PLATFORM_ADMIN);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        User savedUser = userRepository.save(user);
+
+        String token = UUID.randomUUID().toString();
+        UserVerification userVerification = UserVerification.builder()
+                .userId(savedUser.getUserId())
+                .token(token)
+                .build();
+
+        UserVerification saveduserVerification = userVerificationService.save(userVerification);
+
+        emailService.sendVerificationEmailForAdmin(user.getEmail(), url + "auth/verify/" + saveduserVerification.getToken());
+
+        return userResponseMapper.mapTo(savedUser);
+    }
+
+    @Override
     public String login(LoginDto loginDto) {
         log.info("login service called");
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken
@@ -89,7 +115,7 @@ public class AuthServiceImpl implements AuthService {
         log.info("login successful");
         User user = userRepository.findByEmail(loginDto.getEmail())
                 .orElseThrow(() -> new UserNotFoundException("User not found with email"));
-        return jwtService.generateToken(loginDto.getEmail(), "USER", user.getUserId());
+        return jwtService.generateToken(loginDto.getEmail(), user.getRole().toString(), user.getUserId());
     }
 
     @Override
@@ -105,6 +131,8 @@ public class AuthServiceImpl implements AuthService {
     public void sendOtp(String email) {
         userOtpService.sendOtp(email);
     }
+
+
 
     @Override
     public void changePassword(ForgetPasswordDto forgetPasswordDto) {

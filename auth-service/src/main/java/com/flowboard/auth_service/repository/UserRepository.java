@@ -26,4 +26,6 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     the user entity
      */
     List<User> findAllByUserIdIn(List<Integer> userIds);
+
+    Page<User> findAll(Pageable pageable);
 }

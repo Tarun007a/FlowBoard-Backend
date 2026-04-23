@@ -1,4 +1,4 @@
-package com.flowboard.auth_service.config;
+package com.flowboard.auth_service.security;
 
 import com.flowboard.auth_service.filter.HeaderAuthFilter;
 import lombok.RequiredArgsConstructor;

@@ -20,4 +20,6 @@ public class UserDto {
 
     @Schema(description = "User ID", example = "1")
     private Integer userId;
+
+    private boolean isActive;
 }

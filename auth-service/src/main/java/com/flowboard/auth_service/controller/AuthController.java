@@ -63,4 +63,17 @@ public class AuthController {
         authService.changePassword(forgetPasswordDto);
         return ResponseEntity.ok().body("Password changed successfully");
     }
+
+    @Operation(summary = "Admin signup", description = "Register as admin")
+    @ApiResponse(responseCode = "201", description = "Admin registration request successful")
+    @PostMapping("/register-admin")
+    public ResponseEntity<UserDto> registerAdmin(@Valid @RequestBody SignupDto signupDto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(authService.registerAdmin(signupDto));
+    }
+
+    @GetMapping("/is-admin")
+    public ResponseEntity<Boolean> handleIsAdmin(@RequestHeader("X-User-Role") String loggedUserRole) {
+        log.info(loggedUserRole);
+        return ResponseEntity.ok().body(loggedUserRole.equals("PLATFORM_ADMIN"));
+    }
 }
