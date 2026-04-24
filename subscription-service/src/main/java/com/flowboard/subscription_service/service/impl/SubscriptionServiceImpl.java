@@ -44,6 +44,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
      */
     @Override
     public RazorPayResponseDto buySubscription(SubscriptionRequestDto subscriptionRequestDto, Integer userId) {
+        log.info("Subscription purchase requested by user {}", userId);
         return razorPayService.getSubscription(subscriptionRequestDto);
     }
 
@@ -53,6 +54,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
      */
     @Override
     public SubscriptionResponseDto verifyAndActivate(PaymentVerificationDto dto, Integer userId) {
+        log.info("Subscription verification requested by user {}", userId);
         String payload = dto.getRazorpayOrderId() + "|" + dto.getRazorpayPaymentId();
 
         if (!isSignatureValid(payload, dto.getRazorpaySignature())) {
@@ -72,13 +74,14 @@ public class SubscriptionServiceImpl implements SubscriptionService {
                 .build();
 
         UserSubscription saved = subscriptionRepository.save(userSubscription);
-        log.info("Subscription activated for userId={} plan={}", userId, plan);
+        log.info("Subscription activated for user {}", userId);
 
         return responseMapper.mapTo(saved);
     }
 
     @Override
     public SubscriptionResponseDto getDetails(Integer userId) {
+        log.info("Subscription details requested for user {}", userId);
         UserSubscription userSubscription = subscriptionRepository.findByUserId(userId)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
         return responseMapper.mapTo(userSubscription);

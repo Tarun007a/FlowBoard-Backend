@@ -34,6 +34,6 @@ public class NotificationProducerImpl implements NotificationProcedure {
     @Override
     public void sendSingle(NotificationRequestDto message) {
         log.info("Added a single notification in queue");
-        rabbitTemplate.convertAndSend(exchange, bulkRoutingKey, message);
+        rabbitTemplate.convertAndSend(exchange, singleRoutingKey, message);
     }
 }

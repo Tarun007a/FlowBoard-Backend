@@ -54,6 +54,7 @@ public class TaskListServiceImpl implements TaskListService {
     @Override
     public TaskListResponseDto createTaskList(TaskListRequestDto taskListRequestDto, Integer userId) {
         Integer boardId = taskListRequestDto.getBoardId();
+        log.info("Create list requested for board {} by user {}", boardId, userId);
         validateMakeChangesRequest(boardId, userId);
 
         TaskList taskList = taskListRequestMapper.mapTo(taskListRequestDto);
@@ -61,6 +62,7 @@ public class TaskListServiceImpl implements TaskListService {
         taskList.setPosition(position + 1);
 
         TaskList savedList = taskListRepository.save(taskList);
+        log.info("List created with id {} in board {}", savedList.getListId(), boardId);
 
         return taskListResponseMapper.mapTo(savedList);
     }
@@ -92,6 +94,7 @@ public class TaskListServiceImpl implements TaskListService {
 
     @Override
     public TaskListResponseDto updateTaskList(TaskListUpdateDto taskListUpdateDto, Integer taskListId, Integer userId) {
+        log.info("Update list requested for list {} by user {}", taskListId, userId);
         TaskList savedTaskList = getTaskList(taskListId);
         Integer boardId = savedTaskList.getBoardId();
 
@@ -101,6 +104,7 @@ public class TaskListServiceImpl implements TaskListService {
         savedTaskList.setColor(taskListUpdateDto.getColor());
 
         TaskList updatedTaskList = taskListRepository.save(savedTaskList);
+        log.info("List updated with id {}", updatedTaskList.getListId());
 
         return taskListResponseMapper.mapTo(updatedTaskList);
     }
@@ -108,6 +112,7 @@ public class TaskListServiceImpl implements TaskListService {
     @Override
     @Transactional
     public List<TaskListResponseDto> reorderTaskList(Integer boardId, Integer userId, List<TaskListOrderRequestDto> taskListOrder) {
+        log.info("List reorder requested for board {} by user {}", boardId, userId);
         validateMakeChangesRequest(boardId, userId);
 
         List<TaskList> existing = taskListRepository.findByBoardIdAndArchivedFalseOrderByPosition(boardId);
@@ -157,6 +162,7 @@ public class TaskListServiceImpl implements TaskListService {
 
         List<TaskList> resultantOrder =
                 taskListRepository.findByBoardIdAndArchivedFalseOrderByPosition(boardId);
+        log.info("Lists reordered for board {}", boardId);
 
         return resultantOrder.stream()
                 .map(taskListResponseMapper::mapTo)
@@ -165,6 +171,7 @@ public class TaskListServiceImpl implements TaskListService {
 
     @Override
     public void archiveTaskList(Integer taskListId, Integer userId) {
+        log.info("Archive list requested for list {} by user {}", taskListId, userId);
         TaskList taskList = getTaskList(taskListId);
         Integer boardId = taskList.getBoardId();
 
@@ -173,10 +180,12 @@ public class TaskListServiceImpl implements TaskListService {
         taskList.setArchived(true);
 
         taskListRepository.save(taskList);
+        log.info("List archived with id {}", taskListId);
     }
 
     @Override
     public void unarchiveTaskList(Integer taskListId, Integer userId) {
+        log.info("Unarchive list requested for list {} by user {}", taskListId, userId);
         TaskList taskList = getTaskList(taskListId);
         Integer boardId = taskList.getBoardId();
 
@@ -185,10 +194,12 @@ public class TaskListServiceImpl implements TaskListService {
         taskList.setArchived(false);
 
         taskListRepository.save(taskList);
+        log.info("List unarchived with id {}", taskListId);
     }
 
     @Override
     public void deleteTaskList(Integer taskListId, Integer userId) {
+        log.info("Delete list requested for list {} by user {}", taskListId, userId);
         TaskList taskList = getTaskList(taskListId);
         Integer boardId = taskList.getBoardId();
 
@@ -196,6 +207,7 @@ public class TaskListServiceImpl implements TaskListService {
 
         taskList.setArchived(true);
         taskListRepository.save(taskList);
+        log.info("List deleted with id {}", taskListId);
     }
 
     @Override

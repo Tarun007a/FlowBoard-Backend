@@ -21,13 +21,13 @@ public class NotificationMessageListenerImpl implements NotificationMessageListe
     @Override
     @RabbitListener(queues = "single-notification-queue")
     public void processSingleNotification(NotificationRequestDto notificationRequestDto) {
-        log.info("Received message for singe notification");
+        log.info("Single notification message received for recipient {}", notificationRequestDto.getRecipientId());
         notificationService.send(notificationRequestDto);
     }
 
     @Override
     public void processBulkNotification(BulkNotificationRequestDto bulkNotificationRequestDto) {
-        log.info("Received message for bulk notification");
+        log.info("Bulk notification message received for {} recipients", bulkNotificationRequestDto.getRecipientIds().size());
         notificationService.sendBulk(bulkNotificationRequestDto);
     }
 }

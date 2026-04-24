@@ -5,6 +5,12 @@ spring:
   application:
     name: notification-service
 
+  cloud:
+    openfeign:
+      circuitbreaker:
+        enabled: true
+
+
   datasource:
     url: jdbc:mysql://localhost:3306/flow_board_notification_service_db
     username: root
@@ -25,15 +31,15 @@ spring:
       client:
         url: http://localhost:9090
 
-  management:
-    endpoints:
-      web:
-        exposure:
-          include: "*"
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
 
-    endpoint:
-      health:
-        show-details: always
+  endpoint:
+    health:
+      show-details: always
 
 security:
   jwt:
@@ -71,4 +77,13 @@ rabbitmq:
       key: single-notification-key
     bulk:
       key: bulk-notification-key
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      AUTH-SERVICE:
+        slidingWindowSize: 10
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+        permittedNumberOfCallsInHalfOpenState: 3
 

@@ -43,18 +43,22 @@ public class BoardMemberServiceImpl implements BoardMemberService {
     public BoardMemberResponseDto addMember(BoardMemberRequestDto boardMemberRequestDto, Integer userId) {
         Integer boardId = boardMemberRequestDto.getBoardId();
         Integer addedUserId = boardMemberRequestDto.getUserId();
+        log.info("Add board member requested for board {} by user {}", boardId, userId);
 
         Board board = getBoard(boardId);
 
         if(!board.getCreatedById().equals(userId)) {
+            log.warn("Board member add denied for board {} and user {}", boardId, userId);
             throw new IllegalOperationException("You cannot add member in this board");
         }
 
         if(!workspaceClient.isMember(board.getWorkspaceId(), addedUserId)) {
+            log.warn("Board member add failed because user {} is not in workspace {}", addedUserId, board.getWorkspaceId());
             throw new IllegalOperationException("The user you are trying to add in board must be part of workspace");
         }
 
         if(boardMemberRepository.existsByBoardIdAndUserId(boardId, addedUserId)) {
+            log.warn("Board member add skipped because user {} is already in board {}", addedUserId, boardId);
             throw new IllegalOperationException("User already member of board");
         }
 
@@ -62,18 +66,22 @@ public class BoardMemberServiceImpl implements BoardMemberService {
         boardMember.setRole(BoardRole.MEMBER);      // initial role is member for all
 
         BoardMember savedBoardMember = boardMemberRepository.save(boardMember);
+        log.info("Member {} added to board {}", addedUserId, boardId);
         return boardMemberResponseMapper.mapTo(savedBoardMember);
     }
 
     @Override
     public void removeMember(Integer boardId, Integer memberUserId, Integer userId) {
+        log.info("Remove board member requested for board {} by user {}", boardId, userId);
         Board board = getBoard(boardId);
 
         if(!board.getCreatedById().equals(userId)) {
+            log.warn("Board member removal denied for board {} and user {}", boardId, userId);
             throw new IllegalOperationException("You cannot remove member from this group");
         }
 
         if(board.getCreatedById().equals(memberUserId)) {
+            log.warn("Board owner removal blocked for board {}", boardId);
             throw new IllegalOperationException("Cannot remove board owner");
         }
 
@@ -81,6 +89,7 @@ public class BoardMemberServiceImpl implements BoardMemberService {
                 .orElseThrow(() -> new BoardMemberNotFoundException("Member is not in the board"));
 
         boardMemberRepository.delete(boardMember);
+        log.info("Member {} removed from board {}", memberUserId, boardId);
     }
 
 

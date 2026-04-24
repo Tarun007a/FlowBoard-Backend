@@ -5,6 +5,11 @@ spring:
   application:
     name: list-service
 
+  cloud:
+    openfeign:
+      circuitbreaker:
+        enabled: true
+
   datasource:
     url: jdbc:mysql://localhost:3306/flow_board_list_service_db
     username: root
@@ -39,3 +44,12 @@ eureka:
     fetch-registry: true
   instance:
     prefer-ip-address: true
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      AUTH-SERVICE:
+        slidingWindowSize: 10
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+        permittedNumberOfCallsInHalfOpenState: 3

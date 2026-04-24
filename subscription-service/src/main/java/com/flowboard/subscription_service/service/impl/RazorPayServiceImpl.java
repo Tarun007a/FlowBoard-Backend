@@ -46,7 +46,7 @@ public class RazorPayServiceImpl implements RazorPayService {
                     .build();
 
         } catch (RazorpayException e) {
-            log.error("Razorpay error: {}", e.getMessage());
+            log.error("Razorpay order creation failed for plan {}", subscriptionRequestDto.getPlan(), e);
             return RazorPayResponseDto.builder()
                     .status("FAILED")
                     .message("Unable to create payment order")

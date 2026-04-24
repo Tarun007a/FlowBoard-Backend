@@ -36,6 +36,7 @@ public class WorkspaceServiceImpl implements WorkspaceService {
 
     @Override
     public WorkspaceResponseDto createWorkspace(WorkspaceRequestDto workspaceRequestDto, Integer userId) {
+        log.info("Create workspace requested by user {}", userId);
         Workspace workspace = workspaceRequestMapper.mapTo(workspaceRequestDto);
         workspace.setOwnerId(userId);
 
@@ -51,11 +52,13 @@ public class WorkspaceServiceImpl implements WorkspaceService {
                 .build();
 
         workspaceMemberRepository.save(owner);
+        log.info("Workspace created with id {}", savedWorkspace.getWorkspaceId());
         return workspaceResponseMapper.mapTo(savedWorkspace);
     }
 
     @Override
     public WorkspaceResponseDto updateWorkspace(Integer workspaceId, WorkspaceRequestDto workspaceRequestDto, Integer userId) {
+        log.info("Update workspace requested for workspace {} by user {}", workspaceId, userId);
         validateAccess(workspaceId, userId);
 
         Workspace workspace = getWorkspace(workspaceId);
@@ -66,15 +69,18 @@ public class WorkspaceServiceImpl implements WorkspaceService {
         workspace.setLogoUrl(workspaceRequestDto.getLogoUrl());
 
         Workspace updatedWorkspace = workspaceRepository.save(workspace);
+        log.info("Workspace updated with id {}", updatedWorkspace.getWorkspaceId());
         return workspaceResponseMapper.mapTo(updatedWorkspace);
     }
 
     @Override
     public void deleteWorkspace(Integer workspaceId, Integer userId) {
+        log.info("Delete workspace requested for workspace {} by user {}", workspaceId, userId);
         validateAccess(workspaceId, userId);
 
         Workspace workspace = getWorkspace(workspaceId);
         workspaceRepository.delete(workspace);
+        log.info("Workspace deleted with id {}", workspaceId);
     }
 
     @Override
@@ -156,6 +162,7 @@ public class WorkspaceServiceImpl implements WorkspaceService {
             validateAccess(workspaceId, userId);
         }
         catch (IllegalOperationException ex) {
+            log.warn("Workspace modification denied for workspace {} and user {}", workspaceId, userId);
             return false;
         }
         return true;
@@ -195,7 +202,7 @@ public class WorkspaceServiceImpl implements WorkspaceService {
 
     @Override
     public Boolean isMember(Integer workspaceId, Integer memberId) {
-        log.info("checking member " + memberId + " " + workspaceId);
+        log.info("Checking membership for user {} in workspace {}", memberId, workspaceId);
         return workspaceMemberRepository.existsByWorkspaceIdAndUserId(workspaceId, memberId);
     }
 

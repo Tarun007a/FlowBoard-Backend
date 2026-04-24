@@ -62,6 +62,7 @@ public class CardServiceImpl implements CardService {
 
     @Override
     public CardResponseDto createCard(CardRequestDto cardRequestDto, Integer userId) {
+        log.info("Create card requested for list {} by user {}", cardRequestDto.getListId(), userId);
         Card card = requestMapper.mapTo(cardRequestDto);
 
         Integer boardId = card.getBoardId();
@@ -79,8 +80,7 @@ public class CardServiceImpl implements CardService {
         card.setCreatedById(userId);
 
         Card savedCard = cardRepository.save(card);
-
-        log.info(savedCard.toString());
+        log.info("Card created with id {} in list {}", savedCard.getCardId(), listId);
 
         sendNotification(
                 card.getAssigneeId(),
@@ -144,6 +144,7 @@ public class CardServiceImpl implements CardService {
 
     @Override
     public CardResponseDto updateCard(Integer cardId, CardUpdateDto cardUpdateDto, Integer userId) {
+        log.info("Update card requested for card {} by user {}", cardId, userId);
         Card card = getCard(cardId);
 
         validateModificationRequest(card.getBoardId(), userId);
@@ -156,21 +157,25 @@ public class CardServiceImpl implements CardService {
         card.setStatus(cardUpdateDto.getStatus());
 
         Card updatedCard = cardRepository.save(card);
+        log.info("Card updated with id {}", updatedCard.getCardId());
         return responseMapper.mapTo(updatedCard);
     }
 
     @Override
     public void deleteCard(Integer cardId, Integer userId) {
+        log.info("Delete card requested for card {} by user {}", cardId, userId);
         Card card = getCard(cardId);
 
         validateModificationRequest(card.getBoardId(), userId);
 
         cardRepository.delete(card);
+        log.info("Card deleted with id {}", cardId);
     }
 
     @Override
     @Transactional
     public CardResponseDto moveCard(Integer cardId, Integer targetListId, Integer newPosition, Integer userId) {
+        log.info("Move card requested for card {} to list {} by user {}", cardId, targetListId, userId);
         Card card = getCard(cardId);
         Integer sourceListId = card.getListId();
         Integer boardId = card.getBoardId();
@@ -217,6 +222,7 @@ public class CardServiceImpl implements CardService {
                 "Card '" + card.getTitle() + "' moved",
                 card.getCardId()
         );
+        log.info("Card moved with id {} to list {}", cardId, targetListId);
 
         return responseMapper.mapTo(card);
     }
@@ -224,6 +230,7 @@ public class CardServiceImpl implements CardService {
     @Override
     @Transactional
     public void reorderCards(Integer listId, List<Integer> orderedCardIds, Integer userId) {
+        log.info("Card reorder requested for list {} by user {}", listId, userId);
         List<Card> cards = cardRepository
                 .findByListIdAndIsArchivedFalseOrderByPosition(listId);
 
@@ -248,10 +255,12 @@ public class CardServiceImpl implements CardService {
         }
 
         cardRepository.saveAll(cards);
+        log.info("Cards reordered in list {}", listId);
     }
 
     @Override
     public CardResponseDto assignCard(Integer cardId, Integer assigneeId, Integer userId) {
+        log.info("Assign card requested for card {} to user {} by user {}", cardId, assigneeId, userId);
         Card card = getCard(cardId);
         Integer boardId = card.getBoardId();
 
@@ -270,12 +279,14 @@ public class CardServiceImpl implements CardService {
                 "You have been assigned: " + card.getTitle(),
                 card.getCardId()
         );
+        log.info("Card {} assigned to user {}", cardId, assigneeId);
 
         return responseMapper.mapTo(updatedCard);
     }
 
     @Override
     public CardResponseDto updatePriority(Integer cardId, Priority priority, Integer userId) {
+        log.info("Priority update requested for card {} by user {}", cardId, userId);
         Card card = getCard(cardId);
         Integer boardId = card.getBoardId();
 
@@ -293,12 +304,14 @@ public class CardServiceImpl implements CardService {
                 "Priority of '" + card.getTitle() + "' changed to " + priority,
                 card.getCardId()
         );
+        log.info("Priority updated for card {}", cardId);
 
         return responseMapper.mapTo(updatedCard);
     }
 
     @Override
     public CardResponseDto updateStatus(Integer cardId, Status status, Integer userId) {
+        log.info("Status update requested for card {} by user {}", cardId, userId);
         Card card = getCard(cardId);
         Integer boardId = card.getBoardId();
 
@@ -316,13 +329,14 @@ public class CardServiceImpl implements CardService {
                 "Status of '" + card.getTitle() + "' changed to " + status,
                 card.getCardId()
         );
-
+        log.info("Status updated for card {}", cardId);
 
         return responseMapper.mapTo(updated);
     }
 
     @Override
     public void archiveCard(Integer cardId, Integer userId) {
+        log.info("Archive card requested for card {} by user {}", cardId, userId);
         Card card = getCard(cardId);
         Integer boardId = card.getBoardId();
 
@@ -331,10 +345,12 @@ public class CardServiceImpl implements CardService {
         card.setIsArchived(true);
 
         cardRepository.save(card);
+        log.info("Card archived with id {}", cardId);
     }
 
     @Override
     public void unarchiveCard(Integer cardId, Integer userId) {
+        log.info("Unarchive card requested for card {} by user {}", cardId, userId);
 
         Card card = getCard(cardId);
         Integer boardId = card.getBoardId();
@@ -344,6 +360,7 @@ public class CardServiceImpl implements CardService {
         card.setIsArchived(false);
 
         cardRepository.save(card);
+        log.info("Card unarchived with id {}", cardId);
     }
 
     @Override

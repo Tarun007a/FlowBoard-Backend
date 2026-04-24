@@ -40,17 +40,17 @@ public class BoardServiceImpl implements BoardService {
     @Override
     public BoardResponseDto createBoard(BoardRequestDto boardRequestDto, Integer userId) {
         Integer workspaceId = boardRequestDto.getWorkspaceId();
+        log.info("Create board requested for workspace {}", workspaceId);
 
         validateCreationAccess(workspaceId, userId);
 
         if(boardRepository.existsByNameAndWorkspaceId(boardRequestDto.getName(), workspaceId)) {
+            log.warn("Board creation failed because board {} already exists in workspace {}", boardRequestDto.getName(), workspaceId);
             throw new IllegalOperationException("Board already exist in workspace with same name");
         }
 
         Board board = boardRequestMapper.mapTo(boardRequestDto);
         board.setCreatedById(userId);
-
-        log.info(board.toString());
 
         Board savedBoard = boardRepository.save(board);
 
@@ -61,6 +61,7 @@ public class BoardServiceImpl implements BoardService {
                 .build();
 
         boardMemberRepository.save(member);
+        log.info("Board created with id {}", savedBoard.getBoardId());
 
         return boardResponseMapper.mapTo(savedBoard);
     }
@@ -75,6 +76,7 @@ public class BoardServiceImpl implements BoardService {
     @Transactional
     @Override
     public BoardResponseDto updateBoard(Integer boardId, BoardUpdateRequestDto dto, Integer userId) {
+        log.info("Update board requested for board {} by user {}", boardId, userId);
         Board savedBoard = getBoard(boardId);
 
         validateBoardModificationAccess(savedBoard, userId);
@@ -85,17 +87,20 @@ public class BoardServiceImpl implements BoardService {
         savedBoard.setVisibility(dto.getVisibility());
 
         Board updatedBoard = boardRepository.save(savedBoard);
+        log.info("Board updated with id {}", updatedBoard.getBoardId());
 
         return boardResponseMapper.mapTo(updatedBoard);
     }
 
     @Override
     public void deleteBoard(Integer boardId, Integer userId) {
+        log.info("Delete board requested for board {} by user {}", boardId, userId);
         Board board = getBoard(boardId);
 
         validateBoardModificationAccess(board, userId);
 
         boardRepository.delete(board);
+        log.info("Board deleted with id {}", boardId);
     }
 
     @Override
@@ -192,6 +197,7 @@ public class BoardServiceImpl implements BoardService {
 
     @Override
     public void closeBoard(Integer boardId, Integer userId) {
+        log.info("Close board requested for board {} by user {}", boardId, userId);
         Board board = getBoard(boardId);
 
         validateBoardModificationAccess(board, userId);
@@ -201,10 +207,12 @@ public class BoardServiceImpl implements BoardService {
         }
         board.setClosed(true);
         boardRepository.save(board);
+        log.info("Board closed with id {}", boardId);
     }
 
     @Override
     public void openBoard(Integer boardId, Integer userId) {
+        log.info("Open board requested for board {} by user {}", boardId, userId);
         Board board = getBoard(boardId);
 
         validateBoardModificationAccess(board, userId);
@@ -214,6 +222,7 @@ public class BoardServiceImpl implements BoardService {
         }
         board.setClosed(false);
         boardRepository.save(board);
+        log.info("Board opened with id {}", boardId);
     }
 
     @Override

@@ -35,6 +35,7 @@ public class AttachmentServiceImpl implements AttachmentService {
 
     @Override
     public AttachmentResponseDto uploadAttachment(MultipartFile file, AttachmentRequestDto attachmentRequestDto) {
+        log.info("Attachment upload requested for card {}", attachmentRequestDto.getCardId());
         Attachment attachment = attachmentRequestMapper.mapTo(attachmentRequestDto);
 
         long maxSize = AppConstants.maxFileSize;
@@ -60,6 +61,7 @@ public class AttachmentServiceImpl implements AttachmentService {
             publicId = (String) uploadResult.get("public_id");
         }
         catch (IOException ex) {
+            log.error("Attachment upload failed for card {}", attachmentRequestDto.getCardId(), ex);
             throw new FileException("Error when uploading file, please try again!");
         }
 
@@ -70,6 +72,7 @@ public class AttachmentServiceImpl implements AttachmentService {
         attachment.setPublicId(publicId);
 
         Attachment savedAttachment = attachmentRepository.save(attachment);
+        log.info("Attachment uploaded with id {}", savedAttachment.getAttachmentId());
 
         return attachmentResponseMapper.mapTo(savedAttachment);
     }
@@ -85,7 +88,7 @@ public class AttachmentServiceImpl implements AttachmentService {
     @Override
     @Transactional
     public void deleteAttachment(Integer attachmentId) {
-        log.info("Deleting attachment");
+        log.info("Delete attachment requested for attachment {}", attachmentId);
         Attachment attachment = attachmentRepository.findByAttachmentId(attachmentId)
                 .orElseThrow(() -> new AttachmentNotFoundException("Attachment not found with id " + attachmentId));
         try{
@@ -93,10 +96,10 @@ public class AttachmentServiceImpl implements AttachmentService {
             options.put("resource_type", "raw");
             cloudinary.uploader().destroy(attachment.getPublicId(), options);
             attachmentRepository.deleteByAttachmentId(attachmentId);
+            log.info("Attachment deleted with id {}", attachmentId);
         }
         catch (Exception ex) {
-            log.info(ex.getMessage());
-            log.info("Error when deleting attachment with id " + attachmentId);
+            log.error("Attachment deletion failed for attachment {}", attachmentId, ex);
             throw new FileException("Unable to delete file");
         }
     }

@@ -66,6 +66,7 @@ public class EmailServiceImpl implements EmailService {
 
         } catch (Exception e) {
             log.error("Brevo Error: {}", e.getMessage());
+            throw new RuntimeException("Unable to send email");
         }
     }
 

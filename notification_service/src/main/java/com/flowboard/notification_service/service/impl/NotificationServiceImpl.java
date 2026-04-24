@@ -42,7 +42,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public NotificationResponseDto send(NotificationRequestDto notificationRequestDto) {
         Notification notification = notificationRequestMapper.mapTo(notificationRequestDto);
-        log.info(notification.toString());
+        log.info("Send notification requested for recipient {}", notification.getRecipientId());
 
         // here notification service will call auth service to get the mail of user
         // by the given id
@@ -59,30 +59,37 @@ public class NotificationServiceImpl implements NotificationService {
             emailService.sendDueDateEmail(recipientEmail, notification);
         }
         Notification savedNotification = notificationRepository.save(notification);
+        log.info("Notification created with id {}", savedNotification.getNotificationId());
 
         return notificationResponseMapper.mapTo(savedNotification);
     }
 
     @Override
     public void deleteNotification(Integer id) {
+        log.info("Delete notification requested for notification {}", id);
         Notification notification = getNotificationById(id);
         notificationRepository.delete(notification);
+        log.info("Notification deleted with id {}", id);
     }
 
     @Override
     public void markAsRead(Integer id) {
+        log.info("Mark notification as read requested for notification {}", id);
         Notification notification = getNotificationById(id);
         notification.setIsRead(true);
         notificationRepository.save(notification);
+        log.info("Notification marked as read with id {}", id);
     }
 
     @Override
     public void deleteRead(Integer recipientId) {
+        log.info("Delete read notifications requested for recipient {}", recipientId);
         List<Notification> recipientReadNotifications =
                 notificationRepository.findByRecipientIdAndIsRead(recipientId, true);
         for(Notification notification : recipientReadNotifications) {
             notificationRepository.delete(notification);
         }
+        log.info("Deleted read notifications for recipient {}", recipientId);
     }
 
     @Override
@@ -92,6 +99,7 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public List<NotificationResponseDto> sendBulk(BulkNotificationRequestDto bulkNotificationRequestDto) {
+        log.info("Bulk notification requested for {} recipients", bulkNotificationRequestDto.getRecipientIds().size());
         List<NotificationResponseDto> response = new ArrayList<>();
         NotificationRequestDto notificationRequestDto = NotificationRequestDto
                 .builder()
@@ -107,6 +115,7 @@ public class NotificationServiceImpl implements NotificationService {
             notificationRequestDto.setRecipientId(recipientId);
             response.add(send(notificationRequestDto));
         }
+        log.info("Bulk notification completed for {} recipients", bulkNotificationRequestDto.getRecipientIds().size());
         return response;
     }
 
@@ -131,12 +140,13 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public void markAllRead(Integer recipientId) {
+        log.info("Mark all notifications as read requested for recipient {}", recipientId);
         List<Notification> recipientNotifications =
                 notificationRepository.findByRecipientIdAndIsRead(recipientId, false);
-        log.info(recipientNotifications.toString());
         for(Notification notification : recipientNotifications) {
             notification.setIsRead(true);
             notificationRepository.save(notification);
         }
+        log.info("All unread notifications marked as read for recipient {}", recipientId);
     }
 }

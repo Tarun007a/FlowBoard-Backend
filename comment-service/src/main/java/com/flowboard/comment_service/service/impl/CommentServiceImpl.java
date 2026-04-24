@@ -41,9 +41,11 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public CommentResponseDto addComment(CommentRequestDto commentRequestDto) {
+        log.info("Add comment requested for card {} by user {}", commentRequestDto.getCardId(), commentRequestDto.getAuthorId());
         Comment comment = commentRequestMapper.mapTo(commentRequestDto);
         Comment savedComment = commentRepository.save(comment);
         notificationService.sendNotification(commentRequestDto.getCardId(), commentRequestDto.getContent(), commentRequestDto.getAuthorId());
+        log.info("Comment created with id {}", savedComment.getCommentId());
         return commentResponseMapper.mapTo(savedComment);
     }
 
@@ -102,11 +104,13 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public CommentResponseDto updateComment(CommentUpdateDto commentUpdateDto) {
         Integer commentId = commentUpdateDto.getCommentId();
+        log.info("Update comment requested for comment {}", commentId);
         Comment comment = getComment(commentId);
 
         comment.setContent(commentUpdateDto.getContent());
 
         Comment savedComment = commentRepository.save(comment);
+        log.info("Comment updated with id {}", savedComment.getCommentId());
 
         return commentResponseMapper.mapTo(savedComment);
     }
@@ -118,8 +122,10 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public void deleteComment(Integer commentId) {
+        log.info("Delete comment requested for comment {}", commentId);
         Comment comment = getComment(commentId);
         commentRepository.delete(comment);
+        log.info("Comment deleted with id {}", commentId);
     }
 
     private Comment getComment(Integer commentId) {

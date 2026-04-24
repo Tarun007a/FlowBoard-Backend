@@ -36,6 +36,7 @@ public class WorkspaceMemberServiceImpl implements WorkspaceMemberService {
 
     @Override
     public WorkspaceMemberResponseDto addMember(WorkspaceMemberRequestDto workspaceMemberRequestDto, Integer loggedUseId) {
+        log.info("Add workspace member requested for workspace {} by user {}", workspaceMemberRequestDto.getWorkspaceId(), loggedUseId);
         validateAccess(workspaceMemberRequestDto.getWorkspaceId(), loggedUseId);
 
         Integer workspaceId = workspaceMemberRequestDto.getWorkspaceId();
@@ -44,29 +45,35 @@ public class WorkspaceMemberServiceImpl implements WorkspaceMemberService {
         boolean isUserValid = userClient.checkUser(userId);
 
         if(!isUserValid) {
+            log.warn("Workspace member add failed because user {} does not exist", userId);
             throw new IllegalOperationException("User does not exist");
         }
 
         if(workspaceMemberRepository.existsByWorkspaceIdAndUserId(workspaceId, userId)) {
+            log.warn("Workspace member add skipped because user {} is already in workspace {}", userId, workspaceId);
             throw new IllegalOperationException("Already member");
         }
 
         WorkspaceMember workspaceMember = workspaceMemberRequestMapper.mapTo(workspaceMemberRequestDto);
 
         WorkspaceMember savedMember = workspaceMemberRepository.save(workspaceMember);
+        log.info("Member added to workspace {}", workspaceId);
         return workspaceMemberResponseMapper.mapTo(savedMember);
     }
 
     @Override
     @Transactional
     public void removeMember(Integer workspaceId, Integer userId, Integer loggedUseId) {
+        log.info("Remove workspace member requested for workspace {} by user {}", workspaceId, loggedUseId);
         validateAccess(workspaceId, loggedUseId);
 
         if(!workspaceMemberRepository.existsByWorkspaceIdAndUserId(workspaceId, userId)) {
+            log.warn("Workspace member removal failed because user {} is not in workspace {}", userId, workspaceId);
             throw new WorkspaceMemberNotFoundException("No member found with workspace id " + workspaceId + " user id as " + userId);
         }
 
         workspaceMemberRepository.deleteByWorkspaceIdAndUserId(workspaceId, userId);
+        log.info("Member {} removed from workspace {}", userId, workspaceId);
     }
 
     @Override
@@ -94,7 +101,7 @@ public class WorkspaceMemberServiceImpl implements WorkspaceMemberService {
     }
 
     private void validateAccess(Integer workspaceId, Integer userId) {
-        log.info("Validating userId " + userId);
+        log.info("Validating workspace member access for user {} in workspace {}", userId, workspaceId);
         Workspace workspace = getWorkspace(workspaceId);
         if(!workspace.getOwnerId().equals(userId)) {
             throw new IllegalOperationException("You are not allowed to make changes in this workspace");

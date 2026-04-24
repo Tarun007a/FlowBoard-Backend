@@ -39,8 +39,11 @@ public class CardReminderScheduler {
             long minutesLeft =
                     Duration.between(now, card.getDueDate()).toMinutes();
 
+            log.info(card.toString());
+
             // due in 1 hr
             if (minutesLeft == 60) {
+                log.info("Reminder scheduler found a card pending in next 1 hr id - {}",card.getCardId());
                 sendNotification(
                         card,
                         "Upcoming Due Card",
@@ -50,6 +53,7 @@ public class CardReminderScheduler {
 
             // due in 10 min
             else if (minutesLeft == 10) {
+                log.info("Reminder scheduler found a card pending in next 1 hr id - {}",card.getCardId());
                 sendNotification(
                         card,
                         "Card Due Soon",
