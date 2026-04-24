@@ -153,4 +153,50 @@ public class EmailServiceImpl implements EmailService {
 
         this.send(adminVerifcationMail, subject, htmlContent);
     }
+
+    @Override
+    public void sendAccountActivationMail(String email) {
+        String subject = "FlowBoard - Account Activated";
+        log.info("Sending account activation mail to {}", email);
+
+        String htmlContent = """
+    <html>
+      <body style="font-family: Arial, sans-serif; color: #333;">
+        <h2>Account Activated</h2>
+        <p>Hello,</p>
+        <p>Your <b>FlowBoard</b> account for email <b>%s</b> has been activated successfully.</p>
+        <p>You can now login and continue using the platform.</p>
+        <hr>
+        <p style="font-size:12px;color:gray;">
+          If you were not expecting this change, please contact the administrator.
+        </p>
+      </body>
+    </html>
+    """.formatted(email);
+
+        this.send(email, subject, htmlContent);
+    }
+
+    @Override
+    public void sendAccountDeactivatedMail(String email) {
+        String subject = "FlowBoard - Account Deactivated";
+        log.info("Sending account deactivation mail to {}", email);
+
+        String htmlContent = """
+    <html>
+      <body style="font-family: Arial, sans-serif; color: #333;">
+        <h2>Account Deactivated</h2>
+        <p>Hello,</p>
+        <p>Your <b>FlowBoard</b> account for email <b>%s</b> has been deactivated by the administrator.</p>
+        <p>You will not be able to login until the account is activated again.</p>
+        <hr>
+        <p style="font-size:12px;color:gray;">
+          If you believe this was done in error, please contact the administrator.
+        </p>
+      </body>
+    </html>
+    """.formatted(email);
+
+        this.send(email, subject, htmlContent);
+    }
 }

@@ -7,6 +7,7 @@ import com.flowboard.auth_service.entity.ROLE;
 import com.flowboard.auth_service.entity.User;
 import com.flowboard.auth_service.exception.UserNotFoundException;
 import com.flowboard.auth_service.repository.UserRepository;
+import com.flowboard.auth_service.service.EmailService;
 import com.flowboard.auth_service.service.UserService;
 import com.flowboard.auth_service.utils.CustomPageResponse;
 import com.flowboard.auth_service.utils.SecurityUtils;
@@ -29,6 +30,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final Mapper<User, UserDto> userResponseMapper;
     private final SecurityUtils securityUtils;
+    private final EmailService emailService;
 
     @Override
     public UserDto getUserByEmail(String email) {
@@ -78,7 +80,6 @@ public class UserServiceImpl implements UserService {
     public void deactivateAccount(Integer id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User not found with id " + id));
-
         user.setActive(false);
     }
 
@@ -163,6 +164,7 @@ public class UserServiceImpl implements UserService {
     public void disable(Integer userId) {
         User user = getUser(userId);
         user.setActive(false);
+        emailService.sendAccountDeactivatedMail(user.getEmail());
         userRepository.save(user);
     }
 
@@ -206,6 +208,7 @@ public class UserServiceImpl implements UserService {
     public void enable(Integer userId) {
         User user = getUser(userId);
         user.setActive(true);
+        emailService.sendAccountActivationMail(user.getEmail());
         userRepository.save(user);
     }
 

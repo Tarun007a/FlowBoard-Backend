@@ -26,6 +26,7 @@ public class UserOtpServiceImpl implements UserOtpService {
     private final EmailService emailService;
     @Override
     public void sendOtp(String email) {
+        log.info("OTP send requested for email {}", email);
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("User does not exist with email " + email));
 
@@ -40,15 +41,18 @@ public class UserOtpServiceImpl implements UserOtpService {
                     .build();
             userOtpRepository.save(userOtp);
             emailService.sendOtpEmail(email, otp);
+            log.info("OTP sent to user {}", user.getUserId());
         }
         else {
             UserOtp userOtp = userOtpOptional.get();
             LocalDateTime now = LocalDateTime.now();
 
             if(userOtp.getLastOtpDateTime().plusMinutes(5).isAfter(now)) {
+                log.warn("OTP resend blocked for user {}", user.getUserId());
                 throw new OtpException("You can send new OTP after 5 minutes");
             }
             if(userOtp.getOtpSent() >= AppConstants.otpLimit) {
+                log.warn("OTP limit reached for user {}", user.getUserId());
                 throw new OtpException("Maximum OTP limit reached please try again when limit reset - tomorrow");
             }
 
@@ -56,6 +60,7 @@ public class UserOtpServiceImpl implements UserOtpService {
             userOtp.setOtp(otp);
             userOtpRepository.save(userOtp);
             emailService.sendOtpEmail(user.getEmail(), otp);
+            log.info("OTP resent to user {}", user.getUserId());
         }
     }
 }
