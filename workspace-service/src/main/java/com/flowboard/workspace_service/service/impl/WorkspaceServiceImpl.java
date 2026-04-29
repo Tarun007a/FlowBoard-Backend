@@ -1,5 +1,6 @@
 package com.flowboard.workspace_service.service.impl;
 
+import com.flowboard.workspace_service.dto.WorkspaceDto;
 import com.flowboard.workspace_service.dto.WorkspaceRequestDto;
 import com.flowboard.workspace_service.dto.WorkspaceResponseDto;
 import com.flowboard.workspace_service.entity.Visibility;
@@ -209,5 +210,29 @@ public class WorkspaceServiceImpl implements WorkspaceService {
     @Override
     public Boolean isPrivate(Integer workspaceId) {
         return getWorkspace(workspaceId).getVisibility().equals(Visibility.PRIVATE);
+    }
+
+    @Override
+    public int countMember(Integer workspaceId) {
+        return workspaceMemberRepository.countByWorkspaceId(workspaceId);
+    }
+
+    @Override
+    public List<WorkspaceDto> workspaceByUser(Integer userId) {
+        log.info("Get all workspace by owner(user Id)");
+        List<Workspace> workspaces = workspaceRepository.findByOwnerId(userId);
+
+        return workspaces.stream()
+                .map(workspace -> {
+                   return WorkspaceDto.builder()
+                            .workspaceId(workspace.getWorkspaceId())
+                            .ownerId(workspace.getOwnerId())
+                            .name(workspace.getName())
+                            .description(workspace.getDescription())
+                            .visibility(workspace.getVisibility().toString())
+                            .createdAt(workspace.getCreatedAt())
+                            .build();
+                })
+                .toList();
     }
 }

@@ -48,16 +48,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto updateProfile(Integer id, UserUpdateDto userUpdateDto) {
-        String email = securityUtils.getLoggedInUserEmail();
-        User loggedUser = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException("User not found with email " + email));
+        log.info("Update called for user {}", id);
 
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User not found with id " + id));
-
-        if(!loggedUser.getUserId().equals(user.getUserId())) {
-            throw new IllegalArgumentException("Same user must be logged in to delete");
-        }
 
         user.setFullName(userUpdateDto.getFullName());
         user.setAvatarUrl(userUpdateDto.getAvatarUrl());

@@ -235,6 +235,12 @@ public class BoardServiceImpl implements BoardService {
         return getBoard(boardId).getVisibility().equals(Visibility.PRIVATE);
     }
 
+    @Override
+    public int countBoards(Integer workspaceId) {
+        log.info("Count board called for workspace id={}", workspaceId);
+        return boardRepository.countByWorkspaceId(workspaceId);
+    }
+
     private Board getBoard(Integer id) {
         return boardRepository.findById(id)
                 .orElseThrow(() -> new BoardNotFoundException("Board not found with id " + id.toString()));
@@ -262,5 +268,11 @@ public class BoardServiceImpl implements BoardService {
         if(!board.getCreatedById().equals(userId)) {
             throw new IllegalOperationException("You are not allowed to modify the board");
         }
+    }
+
+    @Override
+    public List<Integer> getAllBoardIdByWorksapace(Integer workspaceId) {
+        log.info("Get all board id by workspace");
+        return boardRepository.findByWorkspaceId(workspaceId);
     }
 }

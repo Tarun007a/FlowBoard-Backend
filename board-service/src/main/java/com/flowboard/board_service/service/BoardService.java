@@ -48,5 +48,9 @@ public interface BoardService {
 
     Boolean isPrivate(Integer boardId);
 
+    int countBoards(Integer workspaceId);
+
+    List<Integer> getAllBoardIdByWorksapace(Integer workspaceId);
+
     // public CustomPageResponse<BoardResponseDto> getPublicBoardsForWorkspace(Integer workspaceId, Integer userId);
 }

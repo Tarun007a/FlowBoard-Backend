@@ -108,7 +108,7 @@ public class AuthServiceImpl implements AuthService {
 
         UserVerification saveduserVerification = userVerificationService.save(userVerification);
 
-        emailService.sendVerificationEmailForAdmin(user.getEmail(), url + "auth/verify/" + saveduserVerification.getToken());
+        emailService.sendVerificationEmailForAdmin(user.getEmail(), url + "/auth/verify/" + saveduserVerification.getToken());
         log.info("Admin signup completed for user {}", savedUser.getUserId());
 
         return userResponseMapper.mapTo(savedUser);

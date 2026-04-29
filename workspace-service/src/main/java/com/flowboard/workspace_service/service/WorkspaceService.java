@@ -1,8 +1,11 @@
 package com.flowboard.workspace_service.service;
 
+import com.flowboard.workspace_service.dto.WorkspaceDto;
 import com.flowboard.workspace_service.dto.WorkspaceRequestDto;
 import com.flowboard.workspace_service.dto.WorkspaceResponseDto;
 import com.flowboard.workspace_service.util.CustomPageResponse;
+
+import java.util.List;
 
 public interface WorkspaceService {
 
@@ -31,4 +34,8 @@ public interface WorkspaceService {
     WorkspaceResponseDto findById(Integer workspaceId, Integer userid);
 
     Boolean checkModificationAccess(Integer workspaceId, Integer userId);
+
+    int countMember(Integer workspaceId);
+
+    List<WorkspaceDto> workspaceByUser(Integer userId);
 }

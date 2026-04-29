@@ -19,4 +19,6 @@ public interface SubscriptionService {
     SubscriptionResponseDto getDetails(Integer userId);
 
     List<SubscriptionPlanResponseDto> getPlanDetails();
+
+    boolean isSubscribed(Integer userId);
 }

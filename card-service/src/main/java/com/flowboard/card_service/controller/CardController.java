@@ -2,6 +2,7 @@ package com.flowboard.card_service.controller;
 
 import com.flowboard.card_service.dto.CardRequestDto;
 import com.flowboard.card_service.dto.CardResponseDto;
+import com.flowboard.card_service.dto.CardStatusSummaryDto;
 import com.flowboard.card_service.dto.CardUpdateDto;
 import com.flowboard.card_service.entity.Priority;
 import com.flowboard.card_service.entity.Status;
@@ -191,5 +192,11 @@ public class CardController {
     @GetMapping("/assigned-user/{cardId}")
     public Integer getAssignedUserId(@PathVariable(value = "cardId") Integer cardId) {
         return cardService.getAssignedUserId(cardId);
+    }
+
+    @Operation(summary = "Get card summary for workspace")
+    @GetMapping("/api/v1/cards/analytics/workspace/{workspaceId}")
+    public CardStatusSummaryDto getCardSummaryByWorkspace(@PathVariable Integer workspaceId) {
+        return cardService.cardSummaryForWorkspace(workspaceId);
     }
 }

@@ -5,6 +5,8 @@ import com.flowboard.card_service.exception.ServiceUnavailableException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 @Slf4j
 public class BoardFallback implements BoardClient {
@@ -22,6 +24,12 @@ public class BoardFallback implements BoardClient {
 
     @Override
     public Boolean isPrivate(Integer boardId) {
+        log.error("CIRCUIT BREAKER - Board service unreachable");
+        throw new ServiceUnavailableException("Board service not available");
+    }
+
+    @Override
+    public List<Integer> getBoardIdByWorkspaceId(Integer workspaceId) {
         log.error("CIRCUIT BREAKER - Board service unreachable");
         throw new ServiceUnavailableException("Board service not available");
     }

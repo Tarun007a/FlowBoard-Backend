@@ -97,9 +97,6 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         );
     }
 
-    // -------------------------------------------------------------------------
-    // Helpers
-    // -------------------------------------------------------------------------
 
     private SubscriptionPlanResponseDto toDto(SubscriptionPlan plan) {
         return SubscriptionPlanResponseDto.builder()
@@ -119,5 +116,10 @@ public class SubscriptionServiceImpl implements SubscriptionService {
             log.error("Signature verification error: {}", e.getMessage());
             return false;
         }
+    }
+
+    @Override
+    public boolean isSubscribed(Integer userId) {
+        return subscriptionRepository.existsByUserId(userId);
     }
 }

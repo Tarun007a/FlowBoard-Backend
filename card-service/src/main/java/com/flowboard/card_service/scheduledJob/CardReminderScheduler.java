@@ -42,7 +42,7 @@ public class CardReminderScheduler {
             log.info(card.toString());
 
             // due in 1 hr
-            if (minutesLeft == 60) {
+            if (minutesLeft == 60 || minutesLeft == 59) {
                 log.info("Reminder scheduler found a card pending in next 1 hr id - {}",card.getCardId());
                 sendNotification(
                         card,

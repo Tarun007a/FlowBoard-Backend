@@ -265,7 +265,7 @@ public class CardServiceImpl implements CardService {
         Integer boardId = card.getBoardId();
 
         validateModificationRequest(boardId, userId);
-        validateModificationRequest(assigneeId, userId);
+        validateModificationRequest(boardId, assigneeId);
 
         card.setAssigneeId(assigneeId);
 
@@ -382,12 +382,53 @@ public class CardServiceImpl implements CardService {
         return getCard(cardId).getAssigneeId();
     }
 
+    @Override
+    public CardStatusSummaryDto cardSummaryForWorkspace(Integer workspaceId) {
+
+        log.info("Generating card summary for a workspace");
+
+        List<Integer> boardIds = boardClient.getBoardIdByWorkspaceId(workspaceId);
+
+        long toDo = cardRepository.countByBoardIdInAndStatus(boardIds, Status.TO_DO);
+
+        long inProgress = cardRepository.countByBoardIdInAndStatus(boardIds, Status.IN_PROGRESS);
+
+        long inReview = cardRepository.countByBoardIdInAndStatus(boardIds, Status.IN_REVIEW);
+
+        long done = cardRepository.countByBoardIdInAndStatus(boardIds, Status.DONE);
+
+        long overdueCards =
+                cardRepository.countByBoardIdInAndDueDateBeforeAndStatusNot(
+                        boardIds,
+                        LocalDateTime.now(),
+                        Status.DONE
+                );
+
+        long total = cardRepository.countByBoardIdIn(boardIds);
+
+        long completionRate = 0;
+
+        if (total > 0) {
+            completionRate = (done * 100) / total;
+        }
+
+        return CardStatusSummaryDto.builder()
+                .toDo(toDo)
+                .overdueCards(overdueCards)
+                .inProgress(inProgress)
+                .inReview(inReview)
+                .done(done)
+                .total(total)
+                .completionRate(completionRate)
+                .build();
+    }
+
     /*
-        if both the if conditions are false this means public workspace and public board
-        here we are making 3 calls to board service in worst case and 2 calls to workspace
-        service a better idea is to just make a single call and create a dto to take all
-        the things which to want in return for optimization(to do)
-         */
+            if both the if conditions are false this means public workspace and public board
+            here we are making 3 calls to board service in worst case and 2 calls to workspace
+            service a better idea is to just make a single call and create a dto to take all
+            the things which to want in return for optimization(to do)
+    */
     private void validateViewRequest(Integer boardId, Integer userId) {
         /*
          If board is private user must be member
@@ -421,7 +462,7 @@ public class CardServiceImpl implements CardService {
         */
         if(boardClient.isPrivate(boardId)) {
             if(boardClient.isMember(boardId, userId)) return;
-            throw new IllegalOperationException("You are not allowed to modify this list");
+            throw new IllegalOperationException("User not allowed to modify this list");
         }
 
         /*
@@ -429,7 +470,7 @@ public class CardServiceImpl implements CardService {
         */
         Integer workspaceId = boardClient.getWorkspaceId(boardId);
         if(!workspaceClient.isMember(workspaceId, userId)){
-            throw new IllegalOperationException("You are not allowed to modify this list");
+            throw new IllegalOperationException("User not allowed to modify this list");
         }
     }
 

@@ -7,6 +7,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.List;
+
 public interface BoardRepository extends JpaRepository<Board, Integer> {
     Page<Board> findByWorkspaceId(Integer workspaceId, Pageable pageable);
 
@@ -22,4 +24,8 @@ public interface BoardRepository extends JpaRepository<Board, Integer> {
     AND bm.userId = :userId
     """)
     Page<Board> findPrivateBoardsByWorkspaceAndUser(Integer workspaceId,  Integer userId, Pageable pageable);
+
+    int countByWorkspaceId(Integer workspaceId);
+
+    List<Integer> findByWorkspaceId(Integer workspaceId);
 }

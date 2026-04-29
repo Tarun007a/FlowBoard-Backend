@@ -1,5 +1,6 @@
 package com.flowboard.workspace_service.controller;
 
+import com.flowboard.workspace_service.dto.WorkspaceDto;
 import com.flowboard.workspace_service.dto.WorkspaceRequestDto;
 import com.flowboard.workspace_service.dto.WorkspaceResponseDto;
 import com.flowboard.workspace_service.service.WorkspaceService;
@@ -15,6 +16,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/workspaces")
@@ -135,5 +138,15 @@ public class WorkspaceController {
     @GetMapping("/private/{workspaceId}")
     public Boolean handleIsPrivate(@PathVariable Integer workspaceId) {
         return workspaceService.isPrivate(workspaceId);
+    }
+
+    @GetMapping("/analytics/user/{userId}")
+    List<WorkspaceDto> getWorkspacesByUser(@PathVariable(value = "userId") Integer userId) {
+        return workspaceService.workspaceByUser(userId);
+    }
+
+    @GetMapping("/analytics/count/{workspaceId}")
+    int countMembersOfWorkspace(@PathVariable(value = "workspaceId") Integer workspaceId) {
+        return workspaceService.countMember(workspaceId);
     }
 }

@@ -15,9 +15,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RestController
 @RequestMapping("/api/v1/subscriptions")
 @RequiredArgsConstructor
+@RestController
 public class SubscriptionController {
 
     private final SubscriptionService subscriptionService;
@@ -65,5 +65,10 @@ public class SubscriptionController {
     @GetMapping("/details")
     public ResponseEntity<List<SubscriptionPlanResponseDto>> getPlanDetails() {
         return ResponseEntity.ok(subscriptionService.getPlanDetails());
+    }
+
+    @GetMapping("/check/{userId}")
+    boolean isSubscribed(@PathVariable Integer userId) {
+        return subscriptionService.isSubscribed(userId);
     }
 }

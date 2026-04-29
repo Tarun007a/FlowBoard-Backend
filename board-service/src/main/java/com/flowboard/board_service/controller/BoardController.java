@@ -15,6 +15,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/boards")
 @RequiredArgsConstructor
@@ -145,5 +147,18 @@ public class BoardController {
     @GetMapping("/is-private/{boardId}")
     public Boolean isPrivate(@PathVariable(value = "boardId") Integer boardId) {
         return boardService.isPrivate(boardId);
+    }
+
+    @Operation(summary = "Get count of boards in a workspace")
+    @GetMapping("/analytics/user/{userId}")
+    public int countBoardsByWorkspace(@PathVariable Integer workspaceId) {
+        return boardService.countBoards(workspaceId);
+    }
+
+    @Operation(summary = "Get all board id by workspace Id",
+    description = "Return a list of board id present in a specific workspace used by card service")
+    @GetMapping("/id/{workspaceId}")
+    public List<Integer> getBoardIdByWorkspaceId(@PathVariable Integer workspaceId) {
+        return boardService.getAllBoardIdByWorksapace(workspaceId);
     }
 }

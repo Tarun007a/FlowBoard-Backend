@@ -7,7 +7,10 @@ spring:
 
   data:
     redis:
+#      here we are using redis as we are running all this in docker and the redis is running in
+#      a docker container named redis
       host: localhost
+#      host: redis
       port: 6379
 
   cloud:
@@ -86,7 +89,9 @@ spring:
   boot:
     admin:
       client:
+#        here also we are changing from localhost to eureka because of docker
         url: http://localhost:9090
+#        url: http://admin:9090
 
   management:
     endpoints:
@@ -111,6 +116,7 @@ eureka:
 security:
   jwt:
     secret: ${jwt-secret-key}
+
 
 
 

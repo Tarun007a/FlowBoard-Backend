@@ -1,10 +1,13 @@
 package com.flowboard.workspace_service.repository;
 
+import com.flowboard.workspace_service.entity.Workspace;
 import com.flowboard.workspace_service.entity.WorkspaceMember;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 @Repository
 public interface WorkspaceMemberRepository extends JpaRepository<WorkspaceMember, Integer> {
@@ -15,4 +18,6 @@ public interface WorkspaceMemberRepository extends JpaRepository<WorkspaceMember
     boolean existsByWorkspaceIdAndUserId(Integer workspaceId, Integer userId);
 
     void deleteByWorkspaceIdAndUserId(Integer workspaceId, Integer userId);
+
+    int countByWorkspaceId(Integer workspaceId);
 }
