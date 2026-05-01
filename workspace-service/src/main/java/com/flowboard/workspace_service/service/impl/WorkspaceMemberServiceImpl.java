@@ -100,6 +100,12 @@ public class WorkspaceMemberServiceImpl implements WorkspaceMemberService {
         return new CustomPageResponse<>(workspaceMemberResponseDtoPage);
     }
 
+    @Override
+    public Integer getTotalMembers(Integer workspaceId) {
+        log.info("Total member of workspace id {} called", workspaceId);
+        return workspaceMemberRepository.countByWorkspaceId(workspaceId);
+    }
+
     private void validateAccess(Integer workspaceId, Integer userId) {
         log.info("Validating workspace member access for user {} in workspace {}", userId, workspaceId);
         Workspace workspace = getWorkspace(workspaceId);

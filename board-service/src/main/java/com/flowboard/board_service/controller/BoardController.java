@@ -150,7 +150,7 @@ public class BoardController {
     }
 
     @Operation(summary = "Get count of boards in a workspace")
-    @GetMapping("/analytics/user/{userId}")
+    @GetMapping("/analytics/user/{workspaceId}")
     public int countBoardsByWorkspace(@PathVariable Integer workspaceId) {
         return boardService.countBoards(workspaceId);
     }
@@ -159,6 +159,6 @@ public class BoardController {
     description = "Return a list of board id present in a specific workspace used by card service")
     @GetMapping("/id/{workspaceId}")
     public List<Integer> getBoardIdByWorkspaceId(@PathVariable Integer workspaceId) {
-        return boardService.getAllBoardIdByWorksapace(workspaceId);
+        return boardService.getAllBoardIdByWorkspace(workspaceId);
     }
 }

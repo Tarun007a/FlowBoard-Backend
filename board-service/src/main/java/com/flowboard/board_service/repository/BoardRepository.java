@@ -6,7 +6,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-
 import java.util.List;
 
 public interface BoardRepository extends JpaRepository<Board, Integer> {
@@ -27,5 +26,8 @@ public interface BoardRepository extends JpaRepository<Board, Integer> {
 
     int countByWorkspaceId(Integer workspaceId);
 
+    @Query("""
+            SELECT b.boardId FROM Board b WHERE b.workspaceId = :workspaceId
+            """)
     List<Integer> findByWorkspaceId(Integer workspaceId);
 }

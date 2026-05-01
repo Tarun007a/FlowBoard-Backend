@@ -15,4 +15,6 @@ public interface WorkspaceMemberService {
                                                                      Integer size,
                                                                      String by,
                                                                      String direction);
+
+    Integer getTotalMembers(Integer workspaceId);
 }

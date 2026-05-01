@@ -20,6 +20,6 @@ public interface BoardClient {
     @GetMapping("/api/v1/boards/is-private/{boardId}")
     public Boolean isPrivate(@PathVariable(value = "boardId") Integer boardId);
 
-    @GetMapping("/id/{workspaceId}")
+    @GetMapping("/api/v1/boards/id/{workspaceId}")
     public List<Integer> getBoardIdByWorkspaceId(@PathVariable Integer workspaceId);
 }

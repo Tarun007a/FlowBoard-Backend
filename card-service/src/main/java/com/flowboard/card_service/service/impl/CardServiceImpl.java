@@ -385,7 +385,7 @@ public class CardServiceImpl implements CardService {
     @Override
     public CardStatusSummaryDto cardSummaryForWorkspace(Integer workspaceId) {
 
-        log.info("Generating card summary for a workspace");
+        log.info("Generating card summary for a workspace {}", workspaceId);
 
         List<Integer> boardIds = boardClient.getBoardIdByWorkspaceId(workspaceId);
 

@@ -271,8 +271,8 @@ public class BoardServiceImpl implements BoardService {
     }
 
     @Override
-    public List<Integer> getAllBoardIdByWorksapace(Integer workspaceId) {
-        log.info("Get all board id by workspace");
+    public List<Integer> getAllBoardIdByWorkspace(Integer workspaceId) {
+        log.info("Get all board id by workspace {}", workspaceId);
         return boardRepository.findByWorkspaceId(workspaceId);
     }
 }

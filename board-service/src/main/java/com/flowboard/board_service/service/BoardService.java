@@ -50,7 +50,7 @@ public interface BoardService {
 
     int countBoards(Integer workspaceId);
 
-    List<Integer> getAllBoardIdByWorksapace(Integer workspaceId);
+    List<Integer> getAllBoardIdByWorkspace(Integer workspaceId);
 
     // public CustomPageResponse<BoardResponseDto> getPublicBoardsForWorkspace(Integer workspaceId, Integer userId);
 }

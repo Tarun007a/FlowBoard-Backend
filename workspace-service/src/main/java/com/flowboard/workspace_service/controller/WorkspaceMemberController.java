@@ -61,4 +61,9 @@ public class WorkspaceMemberController {
         Integer ownerId = getUserId(request);
         return ResponseEntity.ok(memberService.getMembers(workspaceId, ownerId, page, size, by, direction));
     }
+
+    @GetMapping("/analytics/members/{workspaceId}")
+    public Integer getTotalMembers(@PathVariable Integer workspaceId) {
+        return memberService.getTotalMembers(workspaceId);
+    }
 }

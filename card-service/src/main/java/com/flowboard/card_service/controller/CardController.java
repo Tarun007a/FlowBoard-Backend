@@ -195,7 +195,7 @@ public class CardController {
     }
 
     @Operation(summary = "Get card summary for workspace")
-    @GetMapping("/api/v1/cards/analytics/workspace/{workspaceId}")
+    @GetMapping("analytics/workspace/{workspaceId}")
     public CardStatusSummaryDto getCardSummaryByWorkspace(@PathVariable Integer workspaceId) {
         return cardService.cardSummaryForWorkspace(workspaceId);
     }
