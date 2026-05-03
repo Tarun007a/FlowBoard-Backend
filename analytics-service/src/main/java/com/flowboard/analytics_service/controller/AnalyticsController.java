@@ -1,19 +1,26 @@
 package com.flowboard.analytics_service.controller;
 
 import com.flowboard.analytics_service.dto.*;
-import com.flowboard.analytics_service.exception.IllegalOperationException;
+import com.flowboard.analytics_service.enums.CardStatus;
+import com.flowboard.analytics_service.enums.DueFilter;
 import com.flowboard.analytics_service.service.AnalyticsService;
+import com.flowboard.analytics_service.util.AppConstants;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
 
+/*
+The problem with ResponseEntity<Mono<List<...>>> is that you're giving Spring a
+ResponseEntity whose body is an unsubscribed pipeline. Spring will just try
+to serialize the Mono object itself, not its emitted value so you may get error at runtime.
+Stay reactive end-to-end (proper WebFlux) - Return Mono<List<WorkspaceOverviewDto>>
+as every thing is only returning to a request and we don't need any specific response code -200 works well.
+ */
 @RestController
 @RequestMapping("/api/v1/analytics")
 @RequiredArgsConstructor
@@ -22,14 +29,6 @@ public class AnalyticsController {
 
     private final AnalyticsService analyticsService;
 
-    private Integer getUserId(HttpServletRequest request) {
-        try {
-            return Integer.parseInt(request.getHeader("X-User-Id"));
-        }
-        catch (Exception e) {
-            throw new IllegalOperationException("User not logged In, header not found");
-        }
-    }
     @Operation(
             summary = "Get user analytics",
             description = "Returns a workspace overview card for every workspace the user belongs to. " +
@@ -38,9 +37,8 @@ public class AnalyticsController {
     )
     @ApiResponse(responseCode = "200", description = "User analytics fetched successfully")
     @GetMapping("/me")
-    public ResponseEntity<Mono<List<WorkspaceOverviewDto>>> getUserAnalytics(HttpServletRequest request) {
-        Integer userId = getUserId(request);
-        return ResponseEntity.ok(analyticsService.getUserAnalytics(userId));
+    public Mono<List<WorkspaceOverviewDto>> getUserAnalytics(@RequestHeader("X-User-Id") Integer userId) {
+        return analyticsService.getUserAnalytics(userId);
     }
 
     @Operation(
@@ -51,11 +49,10 @@ public class AnalyticsController {
     )
     @ApiResponse(responseCode = "200", description = "Workspace analytics fetched successfully")
     @GetMapping("/workspace/{workspaceId}")
-    public ResponseEntity<WorkspaceAnalyticsResponseDto> getWorkspaceAnalytics(
+    public Mono<WorkspaceAnalyticsResponseDto> getWorkspaceAnalytics(
             @PathVariable Integer workspaceId,
-            HttpServletRequest request) {
-        Integer userId = getUserId(request);
-        return ResponseEntity.ok(analyticsService.getWorkspaceAnalytics(workspaceId, userId));
+            @RequestHeader("X-User-Id") Integer userId) {
+        return analyticsService.getWorkspaceAnalytics(workspaceId, userId);
     }
 
     @Operation(
@@ -66,12 +63,8 @@ public class AnalyticsController {
     )
     @ApiResponse(responseCode = "200", description = "Member analytics fetched successfully")
     @GetMapping("/workspace/{workspaceId}/member/{memberId}")
-    public ResponseEntity<MemberAnalyticsDto> getMemberAnalytics(
-            @PathVariable Integer workspaceId,
-            @PathVariable Integer memberId,
-            HttpServletRequest request) {
-        Integer userId = getUserId(request);
-        return ResponseEntity.ok(analyticsService.getMemberAnalytics(workspaceId, memberId, userId));
+    public Mono<MemberAnalyticsDto> getMemberAnalytics(@PathVariable Integer workspaceId, @PathVariable Integer memberId, @RequestHeader("X-User-Id") Integer userId) {
+        return analyticsService.getMemberAnalytics(workspaceId, memberId, userId);
     }
 
 
@@ -83,69 +76,55 @@ public class AnalyticsController {
     )
     @ApiResponse(responseCode = "200", description = "Board analytics fetched successfully")
     @GetMapping("/workspace/{workspaceId}/board/{boardId}")
-    public ResponseEntity<BoardAnalyticsDto> getBoardAnalytics(
-            @PathVariable Integer workspaceId,
-            @PathVariable Integer boardId,
-            HttpServletRequest request) {
-        Integer userId = getUserId(request);
-        return ResponseEntity.ok(analyticsService.getBoardAnalytics(workspaceId, boardId, userId));
+    public Mono<BoardAnalyticsDto> getBoardAnalytics(@PathVariable Integer workspaceId,
+                                                     @PathVariable Integer boardId,
+                                                     @RequestHeader("X-User-Id") Integer userId) {
+        return analyticsService.getBoardAnalytics(workspaceId, boardId, userId);
     }
 
+    @GetMapping("/cards")
+    public Mono<List<CardDto>> getCards(@RequestParam Integer workspaceId,
+                                        @RequestParam(required = false) Integer boardId,
+                                        @RequestParam(required = false) CardStatus status,
+                                        @RequestParam(required = false) DueFilter due,
+                                        @RequestParam(required = false) Integer assigneeId,
+                                        @RequestHeader("X-User-Id") Integer userId) {
 
-    @Operation(
-            summary = "Get filtered workspace cards",
-            description = "Returns cards across all boards in a workspace filtered by status, due date, and assignee. " +
-                    "status: TO_DO | IN_PROGRESS | IN_REVIEW | DONE. " +
-                    "due: TODAY | THIS_WEEK | OVERDUE. " +
-                    "assigneeId: optional — if omitted workspace owners see all, members see their own. " +
-                    "Requires active subscription and workspace membership."
-    )
-    @ApiResponse(responseCode = "200", description = "Filtered workspace cards fetched successfully")
-    @GetMapping("/workspace/{workspaceId}/cards")
-    public ResponseEntity<List<CardDto>> getWorkspaceCards(
-            @PathVariable Integer workspaceId,
-            @RequestParam(required = false) String status,
-            @RequestParam(required = false) String due,
-            @RequestParam(required = false) Integer assigneeId,
-            HttpServletRequest request) {
-        Integer userId = getUserId(request);
-        return ResponseEntity.ok(analyticsService.getWorkspaceCards(workspaceId, userId, status, due, assigneeId));
+        return analyticsService.getCards(workspaceId, boardId, userId, status, due, assigneeId);
     }
 
     @Operation(
-            summary = "Get filtered board cards",
-            description = "Returns cards in a single board filtered by status, due date, and assignee. " +
-                    "Same filter params as workspace cards. " +
-                    "Requires active subscription and workspace membership."
+            summary = "Get Workspace Member info",
+            description = "Returns members inside the workspace " +
+                    "showed just below the workspace Analytics when user get a " +
+                    " specific workspace analytics"
     )
-    @ApiResponse(responseCode = "200", description = "Filtered board cards fetched successfully")
-    @GetMapping("/workspace/{workspaceId}/board/{boardId}/cards")
-    public ResponseEntity<List<CardDto>> getBoardCards(
-            @PathVariable Integer workspaceId,
-            @PathVariable Integer boardId,
-            @RequestParam(required = false) String status,
-            @RequestParam(required = false) String due,
-            @RequestParam(required = false) Integer assigneeId,
-            HttpServletRequest request) {
-        Integer userId = getUserId(request);
-        return ResponseEntity.ok(analyticsService.getBoardCards(workspaceId, boardId, userId, status, due, assigneeId));
+    @GetMapping("/workspace/members/{workspaceId}")
+    public Mono<List<WorkspaceMemberDto>> getWorkspaceMembers(@PathVariable Integer workspaceId,
+                                                        @RequestHeader("X-User-Id") Integer userId) {
+        return analyticsService.getWorkspaceMembers(workspaceId, userId);
     }
 
     @Operation(
-            summary = "Get filtered member cards",
-            description = "Returns cards assigned to a specific member inside a workspace, " +
-                    "filtered by status and due date. " +
-                    "Requires active subscription and workspace membership."
+            summary = "Get Workspace boards info",
+            description = "Returns boards inside the workspace " +
+                    "showed just below the workspace Analytics when user get a " +
+                    " specific workspace analytics"
     )
-    @ApiResponse(responseCode = "200", description = "Filtered member cards fetched successfully")
-    @GetMapping("/workspace/{workspaceId}/member/{memberId}/cards")
-    public ResponseEntity<List<CardDto>> getMemberCards(
-            @PathVariable Integer workspaceId,
-            @PathVariable Integer memberId,
-            @RequestParam(required = false) String status,
-            @RequestParam(required = false) String due,
-            HttpServletRequest request) {
-        Integer userId = getUserId(request);
-        return ResponseEntity.ok(analyticsService.getMemberCards(workspaceId, memberId, userId, status, due));
+    @GetMapping("/workspace/boards/{workspaceId}")
+    public Mono<List<BoardDto>> getWorkspaceBoards(@PathVariable Integer workspaceId,
+                                             @RequestHeader("X-User-Id") Integer userId) {
+        return analyticsService.getWorkspaceBoards(workspaceId, userId);
+    }
+
+    @Operation(
+            summary = "All lists in a board",
+            description = "Returns a list of all the List in a board"
+    )
+    @GetMapping("/board/list/{workspaceId}/{boardId}")
+    public Mono<List<ListDto>> getBoardLists(@PathVariable Integer workspaceId,
+                                             @PathVariable Integer boardId,
+                                             @RequestHeader("X-User-Id") Integer userId) {
+        return analyticsService.getBoardLists(boardId, workspaceId, userId);
     }
 }

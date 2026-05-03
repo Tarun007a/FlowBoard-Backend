@@ -87,4 +87,9 @@ public class UserController {
     public Boolean checkUser(@PathVariable(value = "userId") Integer userId) {
         return userService.checkByUserId(userId);
     }
+
+    @GetMapping("/analytics/get/{userId}")
+    public UserDto userDto(@PathVariable Integer userId) {
+        return userService.getUserById(userId);
+    }
 }

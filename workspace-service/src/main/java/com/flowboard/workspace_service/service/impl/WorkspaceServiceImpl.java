@@ -235,4 +235,25 @@ public class WorkspaceServiceImpl implements WorkspaceService {
                 })
                 .toList();
     }
+
+    @Override
+    public Boolean isOwner(Integer workspaceId, Integer userId) {
+        log.info("Workspace ownership check user-{}, workspace-{}", userId, workspaceId);
+        return getOwenerId(workspaceId).equals(userId);
+    }
+
+    @Override
+    public WorkspaceDto getWorkspaceDto(Integer workspaceId) {
+        log.info("Workspace Dto requested for {}", workspaceId);
+        Workspace workspace = getWorkspace(workspaceId);
+        return WorkspaceDto
+                .builder()
+                .workspaceId(workspaceId)
+                .name(workspace.getName())
+                .ownerId(workspace.getOwnerId())
+                .createdAt(workspace.getCreatedAt())
+                .visibility(workspace.getVisibility().toString())
+                .description(workspace.getDescription())
+                .build();
+    }
 }

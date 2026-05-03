@@ -1,17 +1,26 @@
-package com.flowboard.analytics_service.dto;
+package com.flowboard.board_service.dto;
 
 import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class WorkspaceDto {
+public class BoardDto {
+    private Integer boardId;
+
     private Integer workspaceId;
+
     private String name;
+
     private String description;
-    private Integer ownerId;
+
     private String visibility;
+
+    private Boolean isClosed;
+
     private LocalDateTime createdAt;
+
 }

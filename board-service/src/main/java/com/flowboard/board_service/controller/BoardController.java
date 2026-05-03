@@ -1,5 +1,6 @@
 package com.flowboard.board_service.controller;
 
+import com.flowboard.board_service.dto.BoardDto;
 import com.flowboard.board_service.dto.BoardRequestDto;
 import com.flowboard.board_service.dto.BoardResponseDto;
 import com.flowboard.board_service.dto.BoardUpdateRequestDto;
@@ -10,6 +11,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.Path;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -160,5 +162,15 @@ public class BoardController {
     @GetMapping("/id/{workspaceId}")
     public List<Integer> getBoardIdByWorkspaceId(@PathVariable Integer workspaceId) {
         return boardService.getAllBoardIdByWorkspace(workspaceId);
+    }
+
+    @GetMapping("/analytics/get/{boardId}")
+    public BoardDto getBoardDto(@PathVariable Integer boardId) {
+        return boardService.getBoardForAnalytics(boardId);
+    }
+
+    @GetMapping("/analytics/get-all/{workspaceId}")
+    public List<BoardDto> getAllBoard(@PathVariable Integer workspaceId) {
+        return boardService.getAllBoardForAnalytics(workspaceId);
     }
 }

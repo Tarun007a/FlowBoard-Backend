@@ -5,6 +5,8 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import java.util.List;
+
 @FeignClient(name = "BOARD-SERVICE", fallback = BoardFallback.class)
 public interface BoardClient {
     @GetMapping("/api/v1/board-members/{boardId}/is-member/{userId}")
@@ -17,4 +19,7 @@ public interface BoardClient {
 
     @GetMapping("/api/v1/boards/is-private/{boardId}")
     public Boolean isPrivate(@PathVariable(value = "boardId") Integer boardId);
+
+    @GetMapping("/api/v1/boards/id/{workspaceId}")
+    public List<Integer> getBoardIdByWorkspaceId(@PathVariable Integer workspaceId);
 }

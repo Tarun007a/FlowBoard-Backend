@@ -423,12 +423,123 @@ public class CardServiceImpl implements CardService {
                 .build();
     }
 
+    @Override
+    public CardStatusSummaryDto cardSummaryForUser(Integer workspaceId, Integer userId) {
+        log.info("Generating card summary for user {}", userId);
+
+        List<Integer> boardIds = boardClient.getBoardIdByWorkspaceId(workspaceId);
+
+        log.info(boardIds.toString());
+
+        long toDo = cardRepository.countByBoardIdInAndAssigneeIdAndStatus(boardIds, userId, Status.TO_DO);
+
+        long inProgress = cardRepository.countByBoardIdInAndAssigneeIdAndStatus(boardIds, userId, Status.IN_PROGRESS);
+
+        long inReview = cardRepository.countByBoardIdInAndAssigneeIdAndStatus(boardIds, userId, Status.IN_REVIEW);
+
+        long done = cardRepository.countByBoardIdInAndAssigneeIdAndStatus(boardIds, userId, Status.DONE);
+
+        long overdueCards =
+                cardRepository.countByBoardIdInAndAssigneeIdAndDueDateBeforeAndStatusNot(
+                        boardIds,
+                        userId,
+                        LocalDateTime.now(),
+                        Status.DONE
+                );
+
+        long total = cardRepository.countByBoardIdInAndAssigneeId(boardIds, userId);
+
+        long completionRate = 0;
+
+        if (total > 0) {
+            completionRate = (done * 100) / total;
+        }
+
+        return CardStatusSummaryDto.builder()
+                .toDo(toDo)
+                .overdueCards(overdueCards)
+                .inProgress(inProgress)
+                .inReview(inReview)
+                .done(done)
+                .total(total)
+                .completionRate(completionRate)
+                .build();
+    }
+
+    @Override
+    public CardStatusSummaryDto cardSummaryForBoard(Integer boardId) {
+        log.info("Generating card summary for board {}", boardId);
+
+        long toDo = cardRepository.countByBoardIdAndStatus(boardId, Status.TO_DO);
+
+        long inProgress = cardRepository.countByBoardIdAndStatus(boardId, Status.IN_PROGRESS);
+
+        long inReview = cardRepository.countByBoardIdAndStatus(boardId, Status.IN_REVIEW);
+
+        long done = cardRepository.countByBoardIdAndStatus(boardId, Status.DONE);
+
+        long overdueCards =
+                cardRepository.countByBoardIdAndDueDateBeforeAndStatusNot(
+                        boardId,
+                        LocalDateTime.now(),
+                        Status.DONE
+                );
+
+        long total = cardRepository.countByBoardId(boardId);
+
+        long completionRate = 0;
+
+        if (total > 0) {
+            completionRate = (done * 100) / total;
+        }
+
+        return CardStatusSummaryDto.builder()
+                .toDo(toDo)
+                .overdueCards(overdueCards)
+                .inProgress(inProgress)
+                .inReview(inReview)
+                .done(done)
+                .total(total)
+                .completionRate(completionRate)
+                .build();
+    }
+
+    @Override
+    public List<CardDto> findByWorkspace(Integer workspaceId) {
+        log.info("Get all cards by workspace");
+
+        List<Integer> boardIds = boardClient.getBoardIdByWorkspaceId(workspaceId);
+        List<Card> cardList = cardRepository.findByBoardIdIn(boardIds);
+
+        return cardList
+                .stream()
+                .map(card -> {
+                    return CardDto
+                            .builder()
+                            .cardId(card.getCardId())
+                            .listId(card.getListId())
+                            .boardId(card.getBoardId())
+                            .title(card.getTitle())
+                            .description(card.getDescription())
+                            .position(card.getPosition())
+                            .priority(card.getPriority().toString())
+                            .status(card.getStatus().toString())
+                            .dueDate(card.getDueDate())
+                            .startDate(card.getStartDate())
+                            .assigneeId(card.getAssigneeId())
+                            .createdById(card.getCreatedById())
+                            .isArchived(card.getIsArchived())
+                            .build();
+                })
+                .toList();
+    }
+
     /*
-            if both the if conditions are false this means public workspace and public board
-            here we are making 3 calls to board service in worst case and 2 calls to workspace
-            service a better idea is to just make a single call and create a dto to take all
-            the things which to want in return for optimization(to do)
-    */
+                        if both the if conditions are false this means public workspace and public board
+                        here we are making 3 calls to board service in worst case and 2 calls to workspace
+                        service a better idea is to just make a single call and create a dto to take all
+                        the things which to want in return for optimization(to do)
+                */
     private void validateViewRequest(Integer boardId, Integer userId) {
         /*
          If board is private user must be member

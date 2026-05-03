@@ -1,6 +1,7 @@
 package com.flowboard.workspace_service.service.impl;
 
 import com.flowboard.workspace_service.client.UserClient;
+import com.flowboard.workspace_service.dto.WorkspaceMemberDto;
 import com.flowboard.workspace_service.dto.WorkspaceMemberRequestDto;
 import com.flowboard.workspace_service.dto.WorkspaceMemberResponseDto;
 import com.flowboard.workspace_service.entity.Workspace;
@@ -23,6 +24,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -104,6 +107,24 @@ public class WorkspaceMemberServiceImpl implements WorkspaceMemberService {
     public Integer getTotalMembers(Integer workspaceId) {
         log.info("Total member of workspace id {} called", workspaceId);
         return workspaceMemberRepository.countByWorkspaceId(workspaceId);
+    }
+
+    @Override
+    public List<WorkspaceMemberDto> getAllMembers(Integer workspaceId) {
+        log.info("Analytics - Get all members for workspace");
+        List<WorkspaceMember> memberList = workspaceMemberRepository.findByWorkspaceId(workspaceId);
+        return memberList
+                .stream()
+                .map(member -> {
+                    return WorkspaceMemberDto
+                            .builder()
+                            .memberId(member.getMemberId())
+                            .workspaceId(member.getWorkspaceId())
+                            .userId(member.getUserId())
+                            .joinedAt(member.getJoinedAt())
+                            .build();
+                })
+                .toList();
     }
 
     private void validateAccess(Integer workspaceId, Integer userId) {

@@ -14,7 +14,6 @@ import java.util.List;
 @AllArgsConstructor
 public class WorkspaceAnalyticsResponseDto {
 
-    // Workspace info
     private Integer workspaceId;
     private String name;
     private String description;
@@ -22,11 +21,9 @@ public class WorkspaceAnalyticsResponseDto {
     private String visibility;
     private LocalDateTime createdAt;
 
-    // counts
     private int totalBoards;
     private int totalLists;
     private int totalMembers;
 
-    // Card status breakdown across all boards in this workspace
     private CardStatusSummaryDto cardsSummary;
 }

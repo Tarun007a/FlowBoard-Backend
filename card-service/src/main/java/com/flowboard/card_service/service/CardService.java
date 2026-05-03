@@ -1,9 +1,6 @@
 package com.flowboard.card_service.service;
 
-import com.flowboard.card_service.dto.CardRequestDto;
-import com.flowboard.card_service.dto.CardResponseDto;
-import com.flowboard.card_service.dto.CardStatusSummaryDto;
-import com.flowboard.card_service.dto.CardUpdateDto;
+import com.flowboard.card_service.dto.*;
 import com.flowboard.card_service.entity.Priority;
 import com.flowboard.card_service.entity.Status;
 
@@ -43,4 +40,10 @@ public interface CardService {
     Integer getAssignedUserId(Integer cardId);
 
     CardStatusSummaryDto cardSummaryForWorkspace(Integer workspaceId);
+
+    CardStatusSummaryDto cardSummaryForUser(Integer workspaceId, Integer userId);
+
+    CardStatusSummaryDto cardSummaryForBoard(Integer boardId);
+
+    List<CardDto> findByWorkspace(Integer workspaceId);
 }

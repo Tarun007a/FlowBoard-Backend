@@ -1,9 +1,6 @@
 package com.flowboard.list_service.service;
 
-import com.flowboard.list_service.dto.TaskListOrderRequestDto;
-import com.flowboard.list_service.dto.TaskListRequestDto;
-import com.flowboard.list_service.dto.TaskListResponseDto;
-import com.flowboard.list_service.dto.TaskListUpdateDto;
+import com.flowboard.list_service.dto.*;
 
 import java.util.List;
 
@@ -29,4 +26,10 @@ public interface TaskListService {
     public List<TaskListResponseDto> getPublicTaskList(Integer boardId);
 
     Integer getBoardId(Integer listId);
+
+    Integer totalListsByWorkspace(Integer workspaceId);
+
+    Integer totalListsByBoard(Integer boardId);
+
+    List<ListDto> allListsByBoard(Integer boardId);
 }

@@ -86,6 +86,11 @@ spring:
           predicates:
             - Path=/api/v1/subscriptions/**
 
+        - id: analytics-service
+          uri : lb://ANALYTICS-SERVICE
+          predicates:
+            - Path=/api/v1/analytics/**
+
   boot:
     admin:
       client:

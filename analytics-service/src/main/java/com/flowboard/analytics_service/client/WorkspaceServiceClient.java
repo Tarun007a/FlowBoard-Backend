@@ -3,6 +3,7 @@ package com.flowboard.analytics_service.client;
 
 import com.flowboard.analytics_service.config.BaseWebClient;
 import com.flowboard.analytics_service.dto.WorkspaceDto;
+import com.flowboard.analytics_service.dto.WorkspaceMemberDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
@@ -34,5 +35,29 @@ public class WorkspaceServiceClient {
                 Integer.class,
                 "workspaceService"
         );
+    }
+
+    public Mono<Boolean> isOwner(Integer workspaceId, Integer userId) {
+        return webClient.get("WORKSPACE-SERVICE",
+                "/api/v1/workspaces/analytics/check-owner/" + workspaceId + "/" + userId,
+                Boolean.class,
+                "workspaceService");
+    }
+
+    public Mono<WorkspaceDto> getWorkspaceById(Integer workspaceId) {
+        return webClient.get("WORKSPACE-SERVICE",
+                "/api/v1/workspaces/analytics/get/" + workspaceId,
+                WorkspaceDto.class,
+                "workspaceService");
+    }
+
+    public Mono<List<WorkspaceMemberDto>> getMembers(Integer workspaceId) {
+        ParameterizedTypeReference<List<WorkspaceMemberDto>> type =
+                new ParameterizedTypeReference<List<WorkspaceMemberDto>>() {};
+
+        return webClient.get("WORKSPACE-SERVICE",
+                "/api/v1/workspaces/analytics/get-all/members/" + workspaceId,
+                type,
+                "workspaceService");
     }
 }

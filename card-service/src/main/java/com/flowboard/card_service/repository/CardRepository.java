@@ -45,4 +45,18 @@ public interface CardRepository extends JpaRepository<Card, Integer> {
     long countByBoardIdInAndDueDateBeforeAndStatusNot(List<Integer> boardIds, LocalDateTime now, Status status);
 
     long countByBoardIdIn(List<Integer> boardId);
+
+    long countByBoardIdInAndAssigneeIdAndStatus(List<Integer> boardIds, Integer assigneeId, Status status);
+
+    long countByBoardIdInAndAssigneeIdAndDueDateBeforeAndStatusNot(List<Integer> boardIds, Integer assigneeId, LocalDateTime now, Status status);
+
+    long countByBoardIdInAndAssigneeId(List<Integer> boardIds, Integer assigneeId);
+
+    long countByBoardIdAndStatus(Integer boardId, Status status);
+
+    long countByBoardIdAndDueDateBeforeAndStatusNot(Integer boardId, LocalDateTime now, Status status);
+
+    long countByBoardId(Integer boardId);
+
+    List<Card> findByBoardIdIn(List<Integer> boardIds);
 }

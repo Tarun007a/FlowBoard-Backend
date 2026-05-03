@@ -30,4 +30,6 @@ public interface BoardRepository extends JpaRepository<Board, Integer> {
             SELECT b.boardId FROM Board b WHERE b.workspaceId = :workspaceId
             """)
     List<Integer> findByWorkspaceId(Integer workspaceId);
+
+    List<Board> findAllByWorkspaceId(Integer workspaceId);
 }

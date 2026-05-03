@@ -1,5 +1,6 @@
 package com.flowboard.board_service.service;
 
+import com.flowboard.board_service.dto.BoardDto;
 import com.flowboard.board_service.dto.BoardRequestDto;
 import com.flowboard.board_service.dto.BoardResponseDto;
 import com.flowboard.board_service.dto.BoardUpdateRequestDto;
@@ -51,6 +52,11 @@ public interface BoardService {
     int countBoards(Integer workspaceId);
 
     List<Integer> getAllBoardIdByWorkspace(Integer workspaceId);
+
+    BoardDto getBoardForAnalytics(Integer boardId);
+
+    List<BoardDto> getAllBoardForAnalytics(Integer workspaceId);
+
 
     // public CustomPageResponse<BoardResponseDto> getPublicBoardsForWorkspace(Integer workspaceId, Integer userId);
 }

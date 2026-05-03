@@ -36,4 +36,8 @@ public interface TaskListRepository extends JpaRepository<TaskList, Integer> {
      */
     @Query("SELECT COALESCE(MAX(t.position), 0) from TaskList t where t.boardId = :boardId AND t.archived = false")
     public Integer maxPosition(@Param("boardId") Integer boardId);
+
+    Integer countByBoardIdIn(List<Integer> boardIds);
+
+    List<TaskList> findAllByBoardId(Integer boardId);
 }

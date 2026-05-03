@@ -1,5 +1,6 @@
 package com.flowboard.workspace_service.controller;
 
+import com.flowboard.workspace_service.dto.WorkspaceMemberDto;
 import com.flowboard.workspace_service.dto.WorkspaceMemberRequestDto;
 import com.flowboard.workspace_service.dto.WorkspaceMemberResponseDto;
 import com.flowboard.workspace_service.service.WorkspaceMemberService;
@@ -15,6 +16,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/workspaces")
@@ -65,5 +68,10 @@ public class WorkspaceMemberController {
     @GetMapping("/analytics/members/{workspaceId}")
     public Integer getTotalMembers(@PathVariable Integer workspaceId) {
         return memberService.getTotalMembers(workspaceId);
+    }
+
+    @GetMapping("/analytics/get-all/members/{workspaceId}")
+    public List<WorkspaceMemberDto> getAkkMembers(@PathVariable Integer workspaceId) {
+        return memberService.getAllMembers(workspaceId);
     }
 }

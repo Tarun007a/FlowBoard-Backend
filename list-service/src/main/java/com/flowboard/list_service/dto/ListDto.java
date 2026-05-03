@@ -1,8 +1,12 @@
-package com.flowboard.analytics_service.dto;
+package com.flowboard.list_service.dto;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class ListDto {

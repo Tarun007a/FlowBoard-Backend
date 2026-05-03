@@ -1,8 +1,11 @@
 package com.flowboard.workspace_service.service;
 
+import com.flowboard.workspace_service.dto.WorkspaceMemberDto;
 import com.flowboard.workspace_service.dto.WorkspaceMemberRequestDto;
 import com.flowboard.workspace_service.dto.WorkspaceMemberResponseDto;
 import com.flowboard.workspace_service.util.CustomPageResponse;
+
+import java.util.List;
 
 public interface WorkspaceMemberService {
     public WorkspaceMemberResponseDto addMember(WorkspaceMemberRequestDto workspaceMemberRequestDto, Integer ownerId);
@@ -17,4 +20,6 @@ public interface WorkspaceMemberService {
                                                                      String direction);
 
     Integer getTotalMembers(Integer workspaceId);
+
+    List<WorkspaceMemberDto> getAllMembers(Integer workspaceId);
 }

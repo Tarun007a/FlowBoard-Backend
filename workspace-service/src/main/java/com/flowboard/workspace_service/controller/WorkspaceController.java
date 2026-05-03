@@ -141,12 +141,22 @@ public class WorkspaceController {
     }
 
     @GetMapping("/analytics/user/{userId}")
-    List<WorkspaceDto> getWorkspacesByUser(@PathVariable(value = "userId") Integer userId) {
+    public List<WorkspaceDto> getWorkspacesByUser(@PathVariable(value = "userId") Integer userId) {
         return workspaceService.workspaceByUser(userId);
     }
 
     @GetMapping("/analytics/count/{workspaceId}")
-    int countMembersOfWorkspace(@PathVariable(value = "workspaceId") Integer workspaceId) {
+    public int countMembersOfWorkspace(@PathVariable(value = "workspaceId") Integer workspaceId) {
         return workspaceService.countMember(workspaceId);
+    }
+
+    @GetMapping("/analytics/check-owner/{workspaceId}/{userId}")
+    public Boolean checkOwner(@PathVariable Integer workspaceId, @PathVariable Integer userId) {
+        return workspaceService.isOwner(workspaceId, userId);
+    }
+
+    @GetMapping("analytics/get/{workspaceId}")
+    public WorkspaceDto getWorkspace(@PathVariable Integer workspaceId) {
+        return workspaceService.getWorkspaceDto(workspaceId);
     }
 }

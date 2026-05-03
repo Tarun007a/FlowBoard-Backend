@@ -1,9 +1,6 @@
 package com.flowboard.list_service.controller;
 
-import com.flowboard.list_service.dto.TaskListOrderRequestDto;
-import com.flowboard.list_service.dto.TaskListRequestDto;
-import com.flowboard.list_service.dto.TaskListResponseDto;
-import com.flowboard.list_service.dto.TaskListUpdateDto;
+import com.flowboard.list_service.dto.*;
 import com.flowboard.list_service.service.TaskListService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -117,5 +114,20 @@ public class TaskListController {
     @GetMapping("/get-boardId/{listId}")
     public Integer getBoardId(@PathVariable(value = "listId") Integer listId) {
         return taskListService.getBoardId(listId);
+    }
+
+    @GetMapping("/analytics/workspace/total/{workspaceId}")
+    public Integer getTotalListsForWorkspace(@PathVariable Integer workspaceId) {
+        return taskListService.totalListsByWorkspace(workspaceId);
+    }
+
+    @GetMapping("/analytics/workspace/count/{boardId}")
+    public Integer getTotalListsForBoard(@PathVariable Integer boardId) {
+        return taskListService.totalListsByBoard(boardId);
+    }
+
+    @GetMapping("/analytics/get-all/{boardId}")
+    public List<ListDto> getAllListsForBoard(@PathVariable Integer boardId) {
+        return taskListService.allListsByBoard(boardId);
     }
 }

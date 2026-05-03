@@ -1,9 +1,6 @@
 package com.flowboard.card_service.controller;
 
-import com.flowboard.card_service.dto.CardRequestDto;
-import com.flowboard.card_service.dto.CardResponseDto;
-import com.flowboard.card_service.dto.CardStatusSummaryDto;
-import com.flowboard.card_service.dto.CardUpdateDto;
+import com.flowboard.card_service.dto.*;
 import com.flowboard.card_service.entity.Priority;
 import com.flowboard.card_service.entity.Status;
 import com.flowboard.card_service.service.CardService;
@@ -195,8 +192,24 @@ public class CardController {
     }
 
     @Operation(summary = "Get card summary for workspace")
-    @GetMapping("analytics/workspace/{workspaceId}")
+    @GetMapping("/analytics/summary/workspace/{workspaceId}")
     public CardStatusSummaryDto getCardSummaryByWorkspace(@PathVariable Integer workspaceId) {
         return cardService.cardSummaryForWorkspace(workspaceId);
+    }
+
+    @GetMapping("/analytics/user/{workspaceId}/{userId}")
+    public CardStatusSummaryDto getCardSummaryByUser(@PathVariable Integer workspaceId,
+                                                     @PathVariable Integer userId) {
+        return cardService.cardSummaryForUser(workspaceId, userId);
+    }
+
+    @GetMapping("/analytics/board/{boardId}")
+    public CardStatusSummaryDto getCardSummaryByUser(@PathVariable Integer boardId) {
+        return cardService.cardSummaryForBoard(boardId);
+    }
+
+    @GetMapping("/analytics/workspace/{workspaceId}")
+    public List<CardDto> getAllCardByWorkspace(@PathVariable Integer workspaceId) {
+        return cardService.findByWorkspace(workspaceId);
     }
 }

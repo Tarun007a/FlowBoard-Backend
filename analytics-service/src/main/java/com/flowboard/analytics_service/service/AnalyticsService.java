@@ -1,6 +1,8 @@
 package com.flowboard.analytics_service.service;
 
 import com.flowboard.analytics_service.dto.*;
+import com.flowboard.analytics_service.enums.CardStatus;
+import com.flowboard.analytics_service.enums.DueFilter;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -28,34 +30,28 @@ public interface AnalyticsService {
     /*
      * Returns full workspace analytics
      */
-    WorkspaceAnalyticsResponseDto getWorkspaceAnalytics(Integer workspaceId, Integer userId);
+    Mono<WorkspaceAnalyticsResponseDto> getWorkspaceAnalytics(Integer workspaceId, Integer userId);
 
     /*
      * Returns full analytics for a single member inside a workspace.
      */
-    MemberAnalyticsDto getMemberAnalytics(Integer workspaceId, Integer memberId, Integer userId);
+    Mono<MemberAnalyticsDto> getMemberAnalytics(Integer workspaceId, Integer memberId, Integer userId);
 
     /*
      * Returns full analytics for a single board inside a workspace.
      */
-    BoardAnalyticsDto getBoardAnalytics(Integer workspaceId, Integer boardId, Integer userId);
+    Mono<BoardAnalyticsDto> getBoardAnalytics(Integer workspaceId, Integer boardId, Integer userId);
 
     /*
      * Returns filtered cards for a workspace — all boards combined.
      * status (TO_DO/IN_PROGRESS/IN_REVIEW/DONE) and due (TODAY/THIS_WEEK/OVERDUE),
      */
-    List<CardDto> getWorkspaceCards(Integer workspaceId, Integer userId,
-                                    String status, String due, Integer assigneeId);
 
-    /*
-     * Returns filtered cards for a single board.
-     */
-    List<CardDto> getBoardCards(Integer workspaceId, Integer boardId, Integer userId,
-                                String status, String due, Integer assigneeId);
+    Mono<List<WorkspaceMemberDto>> getWorkspaceMembers(Integer workspaceId, Integer userId);
 
-    /*
-     * Returns filtered cards assigned to a specific member inside a workspace.
-     */
-    List<CardDto> getMemberCards(Integer workspaceId, Integer memberId, Integer userId,
-                                 String status, String due);
+    Mono<List<BoardDto>> getWorkspaceBoards(Integer workspaceId, Integer userId);
+
+    Mono<List<ListDto>> getBoardLists(Integer boardId, Integer workspaceId, Integer userId);
+
+    Mono<List<CardDto>> getCards(Integer workspaceId, Integer boardId, Integer userId, CardStatus status, DueFilter due, Integer assigneeId);
 }

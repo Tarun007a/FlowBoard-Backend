@@ -4,6 +4,9 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
+/*
+For analytics
+ */
 @Data
 @Builder
 @NoArgsConstructor

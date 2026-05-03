@@ -38,4 +38,9 @@ public interface WorkspaceService {
     int countMember(Integer workspaceId);
 
     List<WorkspaceDto> workspaceByUser(Integer userId);
+
+    Boolean isOwner(Integer workspaceId, Integer userId);
+
+
+    WorkspaceDto getWorkspaceDto(Integer workspaceId);
 }

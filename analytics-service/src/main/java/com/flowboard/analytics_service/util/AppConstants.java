@@ -1,5 +1,7 @@
 package com.flowboard.analytics_service.util;
 
+import com.flowboard.analytics_service.enums.CardStatus;
+
 public class AppConstants {
 
     // Card status

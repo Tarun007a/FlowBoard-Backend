@@ -2,10 +2,7 @@ package com.flowboard.list_service.service.impl;
 
 import com.flowboard.list_service.client.BoardClient;
 import com.flowboard.list_service.client.WorkspaceClient;
-import com.flowboard.list_service.dto.TaskListOrderRequestDto;
-import com.flowboard.list_service.dto.TaskListRequestDto;
-import com.flowboard.list_service.dto.TaskListResponseDto;
-import com.flowboard.list_service.dto.TaskListUpdateDto;
+import com.flowboard.list_service.dto.*;
 import com.flowboard.list_service.entity.TaskList;
 import com.flowboard.list_service.exception.IllegalOperationException;
 import com.flowboard.list_service.exception.TaskListNotFoundException;
@@ -16,6 +13,7 @@ import com.flowboard.list_service.repository.TaskListRepository;
 import com.flowboard.list_service.service.TaskListService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.config.Task;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -240,6 +238,35 @@ public class TaskListServiceImpl implements TaskListService {
     @Override
     public Integer getBoardId(Integer listId) {
         return getTaskList(listId).getBoardId();
+    }
+
+    @Override
+    public Integer totalListsByWorkspace(Integer workspaceId) {
+        List<Integer> boardIds = boardClient.getBoardIdByWorkspaceId(workspaceId);
+        return taskListRepository.countByBoardIdIn(boardIds);
+    }
+
+    @Override
+    public Integer totalListsByBoard(Integer boardId) {
+        return taskListRepository.countByBoardId(boardId);
+    }
+
+    @Override
+    public List<ListDto> allListsByBoard(Integer boardId) {
+        List<TaskList> taskLists = taskListRepository.findAllByBoardId(boardId);
+
+        return taskLists
+                .stream()
+                .map(list -> {
+                    return ListDto
+                            .builder()
+                            .boardId(list.getBoardId())
+                            .name(list.getName())
+                            .listId(list.getListId())
+                            .position(list.getPosition())
+                            .build();
+                })
+                .toList();
     }
 
     private Integer getLastPosition(Integer boardId) {

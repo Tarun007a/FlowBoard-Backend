@@ -1,6 +1,7 @@
 package com.flowboard.board_service.service.impl;
 
 import com.flowboard.board_service.client.WorkspaceClient;
+import com.flowboard.board_service.dto.BoardDto;
 import com.flowboard.board_service.dto.BoardRequestDto;
 import com.flowboard.board_service.dto.BoardResponseDto;
 import com.flowboard.board_service.dto.BoardUpdateRequestDto;
@@ -9,7 +10,6 @@ import com.flowboard.board_service.entity.BoardMember;
 import com.flowboard.board_service.entity.Visibility;
 import com.flowboard.board_service.exception.BoardNotFoundException;
 import com.flowboard.board_service.exception.IllegalOperationException;
-import com.flowboard.board_service.mapper.Mapper;
 import com.flowboard.board_service.mapper.impl.BoardRequestMapper;
 import com.flowboard.board_service.mapper.impl.BoardResponseMapper;
 import com.flowboard.board_service.repository.BoardMemberRepository;
@@ -274,5 +274,44 @@ public class BoardServiceImpl implements BoardService {
     public List<Integer> getAllBoardIdByWorkspace(Integer workspaceId) {
         log.info("Get all board id by workspace {}", workspaceId);
         return boardRepository.findByWorkspaceId(workspaceId);
+    }
+
+    @Override
+    public BoardDto getBoardForAnalytics(Integer boardId) {
+        log.info("Get board for analytics");
+        Board board = getBoard(boardId);
+
+        return BoardDto
+                .builder()
+                .boardId(board.getBoardId())
+                .name(board.getName())
+                .workspaceId(board.getWorkspaceId())
+                .visibility(board.getVisibility().toString())
+                .description(board.getDescription())
+                .createdAt(board.getCreatedAt())
+                .isClosed(board.isClosed())
+                .build();
+    }
+
+    @Override
+    public List<BoardDto> getAllBoardForAnalytics(Integer workspaceId) {
+        log.info("Get All board for analytics");
+        List<Board> boardList = boardRepository.findAllByWorkspaceId(workspaceId);
+
+        return boardList
+                .stream()
+                .map(board -> {
+                    return BoardDto
+                            .builder()
+                            .boardId(board.getBoardId())
+                            .name(board.getName())
+                            .workspaceId(board.getWorkspaceId())
+                            .visibility(board.getVisibility().toString())
+                            .description(board.getDescription())
+                            .createdAt(board.getCreatedAt())
+                            .isClosed(board.isClosed())
+                            .build();
+                })
+                .toList();
     }
 }
