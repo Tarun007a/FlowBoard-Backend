@@ -19,5 +19,4 @@ public class WorkspaceMemberDto {
     private Integer userId;
 
     private LocalDateTime joinedAt;
-
 }

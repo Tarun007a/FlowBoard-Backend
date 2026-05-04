@@ -61,7 +61,7 @@ public class AnalyticsServiceImpl implements AnalyticsService {
 
                     Mono<CardStatusSummaryDto> cards =
                             cardServiceClient.getCardSummaryForWorkspace(ws.getWorkspaceId());
-
+                    log.info("Analytics ready for user");
                     return Mono.zip(boards, members, cards)
                             .map(tuple -> {
                                 WorkspaceOverviewDto dto = new WorkspaceOverviewDto();
@@ -106,6 +106,8 @@ public class AnalyticsServiceImpl implements AnalyticsService {
                     dto.setTotalLists(tuple.getT3());
                     dto.setTotalMembers(tuple.getT4());
                     dto.setCardsSummary(tuple.getT5());
+
+                    log.info("Workspace analytics ready for workspace {}", workspaceId);
                     return dto;
                 });
     }

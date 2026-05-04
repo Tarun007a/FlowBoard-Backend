@@ -121,7 +121,7 @@ public class TaskListController {
         return taskListService.totalListsByWorkspace(workspaceId);
     }
 
-    @GetMapping("/analytics/workspace/count/{boardId}")
+    @GetMapping("/analytics/count/{boardId}")
     public Integer getTotalListsForBoard(@PathVariable Integer boardId) {
         return taskListService.totalListsByBoard(boardId);
     }
