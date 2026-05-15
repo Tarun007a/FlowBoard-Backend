@@ -27,7 +27,7 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                dir('flowboard-admin-server') {
+                dir('admin-server') {
                     sh 'docker build -t $IMAGE_NAME:$IMAGE_TAG .'
                 }
             }
