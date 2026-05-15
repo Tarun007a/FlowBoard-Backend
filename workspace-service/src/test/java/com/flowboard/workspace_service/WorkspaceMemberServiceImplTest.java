@@ -240,4 +240,65 @@ class WorkspaceMemberServiceImplTest {
         assertThrows(WorkspaceNotFoundException.class,
                 () -> workspaceMemberService.addMember(dto, 1));
     }
+
+    @Test
+    void getMembers_desc_positive() {
+
+        WorkspaceMember member =
+                WorkspaceMember.builder()
+                        .workspaceId(1)
+                        .userId(2)
+                        .build();
+
+        PageImpl<WorkspaceMember> page =
+                new PageImpl<>(
+                        List.of(member),
+                        PageRequest.of(0, 5),
+                        1
+                );
+
+        when(workspaceRepository.findById(1))
+                .thenReturn(Optional.of(getWorkspace()));
+
+        when(workspaceMemberRepository
+                .findByWorkspaceId(anyInt(), any()))
+                .thenReturn(page);
+
+        when(workspaceMemberResponseMapper
+                .mapTo(any(WorkspaceMember.class)))
+                .thenReturn(new WorkspaceMemberResponseDto());
+
+        CustomPageResponse<WorkspaceMemberResponseDto> result =
+                workspaceMemberService.getMembers(
+                        1, 1, 0, 5, "id", "desc"
+                );
+
+        assertEquals(1, result.getContent().size());
+    }
+
+    @Test
+    void getTotalMembers_positive() {
+
+        when(workspaceMemberRepository.countByWorkspaceId(1))
+                .thenReturn(5);
+
+        assertEquals(5,
+                workspaceMemberService.getTotalMembers(1));
+    }
+
+    @Test
+    void getAllMembers_positive() {
+
+        WorkspaceMember member =
+                WorkspaceMember.builder()
+                        .workspaceId(1)
+                        .userId(2)
+                        .build();
+
+        when(workspaceMemberRepository.findByWorkspaceId(1))
+                .thenReturn(List.of(member));
+
+        assertEquals(1,
+                workspaceMemberService.getAllMembers(1).size());
+    }
 }

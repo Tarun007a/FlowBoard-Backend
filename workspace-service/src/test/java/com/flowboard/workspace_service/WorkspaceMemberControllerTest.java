@@ -14,6 +14,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.List;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -116,6 +118,35 @@ class WorkspaceMemberControllerTest {
     void getMembers_negative() throws Exception {
 
         mockMvc.perform(get("/api/v1/workspaces/1/members"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void getTotalMembers_positive() throws Exception {
+
+        when(memberService.getTotalMembers(1))
+                .thenReturn(5);
+
+        mockMvc.perform(get("/api/v1/workspaces/analytics/members/1"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("5"));
+    }
+
+    @Test
+    void getAllMembers_positive() throws Exception {
+
+        when(memberService.getAllMembers(1))
+                .thenReturn(List.of());
+
+        mockMvc.perform(get("/api/v1/workspaces/analytics/get-all/members/1"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void invalidHeader_negative() throws Exception {
+
+        mockMvc.perform(get("/api/v1/workspaces/1/members")
+                        .header("X-User-Id", "abc"))
                 .andExpect(status().isBadRequest());
     }
 }

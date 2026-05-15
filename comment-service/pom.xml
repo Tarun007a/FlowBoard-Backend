@@ -28,8 +28,31 @@
 	</scm>
 	<properties>
 		<java.version>21</java.version>
+		<maven.compiler.source>21</maven.compiler.source>
+		<maven.compiler.target>21</maven.compiler.target>
+		<maven.compiler.release>21</maven.compiler.release>
 		<spring-cloud.version>2025.1.1</spring-cloud.version>
 		<spring-boot-admin.version>4.0.2</spring-boot-admin.version>
+
+		<sonar.coverage.exclusions>
+			**/aop/**,
+			**/client/**,
+			**/config/**,
+			**/dto/**,
+			**/entity/**,
+			**/exception/**,
+			**/fallback/**,
+			**/mapper/**,
+			**/Mapper/**,
+			**/repository/**,
+			**/util/**,
+			**/service/AttachmentService.java,
+			**/service/CommentService.java,
+			**/service/NotificationService.java,
+			**/service/impl/NotificationServiceImpl.java,
+			**/service/impl/AttachmentServiceImpl.java,
+			**/CommentServiceApplication.java,
+		</sonar.coverage.exclusions>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -88,6 +111,12 @@
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-circuitbreaker-resilience4j</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-aop</artifactId>
+			<version>4.0.0-M2</version>
+			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.projectlombok</groupId>

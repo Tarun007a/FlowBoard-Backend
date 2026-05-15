@@ -14,6 +14,7 @@ public class CorsConfig {
         CorsConfiguration config = new CorsConfiguration();
         config.addAllowedOrigin("http://localhost:4200");
         config.addAllowedOrigin("https://flow-board-1.netlify.app");
+        config.addAllowedOrigin("http://flowboardapp.s3-website-ap-southeast-2.amazonaws.com");
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
         config.setAllowCredentials(true);

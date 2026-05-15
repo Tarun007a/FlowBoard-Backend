@@ -11,8 +11,8 @@ spring:
         enabled: true
 
   datasource:
-    url: jdbc:mysql://localhost:3306/flow_board_comment_service_db
-    username: root
+    url: ${db_url}
+    username: ${db_username}
     password: ${db_password}
 
   jpa:
@@ -20,6 +20,7 @@ spring:
       ddl-auto: update
 
   rabbitmq:
+#    host: rabbitmq
     host: localhost
     port: 5672
     username: guest
@@ -28,6 +29,7 @@ spring:
   boot:
     admin:
       client:
+#        url: http://admin:9090
         url: http://localhost:9090
 
   management:
@@ -40,17 +42,15 @@ spring:
       health:
         show-details: always
 
-security:
-  jwt:
-    secret: ${jwt-secret-key}
-
 eureka:
   client:
     service-url:
+#      defaultZone: http://eureka:8761/eureka/
       defaultZone: http://localhost:8761/eureka/
     register-with-eureka: true
     fetch-registry: true
   instance:
+#    hostname: comment-service
     prefer-ip-address: true
 
 rabbitmq:

@@ -208,4 +208,70 @@ class BoardMemberServiceImplTest {
 
         assertEquals(false, result);
     }
+
+    @Test
+    void getMembers_withDescSorting_returnsPage() {
+
+        when(boardMemberRepository.existsByBoardIdAndUserId(1, 2))
+                .thenReturn(true);
+
+        when(boardMemberRepository.findUserIdsByBoardId(any(), any()))
+                .thenReturn(new PageImpl<>(
+                        List.of(2),
+                        PageRequest.of(0, 5),
+                        1
+                ));
+
+        when(userClient.getUserBulk(List.of(2)))
+                .thenReturn(List.of(new UserDto()));
+
+        var result = boardMemberService.getMembers(
+                1,
+                2,
+                0,
+                5,
+                "id",
+                "desc"
+        );
+
+        assertEquals(1, result.getContent().size());
+    }
+
+    @Test
+    void addMember_whenUserAlreadyMember_throwsException() {
+
+        Board board = new Board();
+        board.setBoardId(1);
+        board.setCreatedById(1);
+        board.setWorkspaceId(10);
+
+        BoardMemberRequestDto request = new BoardMemberRequestDto();
+        request.setBoardId(1);
+        request.setUserId(2);
+
+        when(boardRepository.findById(1))
+                .thenReturn(Optional.of(board));
+
+        when(workspaceClient.isMember(10, 2))
+                .thenReturn(true);
+
+        when(boardMemberRepository.existsByBoardIdAndUserId(1, 2))
+                .thenReturn(true);
+
+        assertThrows(IllegalOperationException.class,
+                () -> boardMemberService.addMember(request, 1));
+    }
+
+    @Test
+    void removeMember_whenRemovingOwner_throwsException() {
+
+        Board board = new Board();
+        board.setCreatedById(1);
+
+        when(boardRepository.findById(1))
+                .thenReturn(Optional.of(board));
+
+        assertThrows(IllegalOperationException.class,
+                () -> boardMemberService.removeMember(1, 1, 1));
+    }
 }

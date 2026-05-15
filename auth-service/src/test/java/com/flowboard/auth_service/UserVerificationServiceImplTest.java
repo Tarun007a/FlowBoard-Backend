@@ -13,90 +13,53 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.verify;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class UserVerificationServiceImplTest {
 
-    @Mock
-    private UserVerificationRepository userVerificationRepository;
+    @Mock private UserVerificationRepository userVerificationRepository;
 
     @InjectMocks
     private UserVerificationServiceImpl userVerificationService;
 
-    @Test
-    void save_withValidData_returnsSavedEntity() {
-
-        UserVerification verification =
-                UserVerification.builder()
-                        .userId(1)
-                        .token("abc123")
-                        .build();
-
-        when(userVerificationRepository.save(verification))
-                .thenReturn(verification);
-
-        UserVerification result =
-                userVerificationService.save(verification);
-
-        assertEquals("abc123", result.getToken());
+    private UserVerification uv(int userId, String token) {
+        return UserVerification.builder().userId(userId).token(token).build();
     }
 
     @Test
-    void deleteByUserId_withValidId_deletesRecord() {
+    void save_returnsSavedEntity() {
+        UserVerification v = uv(1, "tok");
+        when(userVerificationRepository.save(v)).thenReturn(v);
+        assertEquals("tok", userVerificationService.save(v).getToken());
+    }
 
-        UserVerification verification =
-                UserVerification.builder()
-                        .userId(1)
-                        .token("abc123")
-                        .build();
-
-        when(userVerificationRepository.findByUserId(1))
-                .thenReturn(Optional.of(verification));
+    @Test
+    void deleteByUserId_found_deletesRecord() {
+        UserVerification v = uv(1, "tok");
+        when(userVerificationRepository.findByUserId(1)).thenReturn(Optional.of(v));
 
         userVerificationService.deleteByUserId(1);
-
-        verify(userVerificationRepository).delete(verification);
+        verify(userVerificationRepository).delete(v);
     }
 
     @Test
-    void deleteByUserId_withWrongId_throwsException() {
-
-        when(userVerificationRepository.findByUserId(99))
-                .thenReturn(Optional.empty());
-
-        assertThrows(UsernameNotFoundException.class,
-                () -> userVerificationService.deleteByUserId(99));
+    void deleteByUserId_notFound_throwsUsernameNotFoundException() {
+        when(userVerificationRepository.findByUserId(99)).thenReturn(Optional.empty());
+        assertThrows(UsernameNotFoundException.class, () -> userVerificationService.deleteByUserId(99));
     }
 
     @Test
-    void findByToken_withValidToken_returnsEntity() {
-
-        UserVerification verification =
-                UserVerification.builder()
-                        .userId(1)
-                        .token("token123")
-                        .build();
-
-        when(userVerificationRepository.findByToken("token123"))
-                .thenReturn(Optional.of(verification));
-
-        UserVerification result =
-                userVerificationService.findByToken("token123");
-
-        assertEquals("token123", result.getToken());
+    void findByToken_found_returnsEntity() {
+        UserVerification v = uv(1, "tok123");
+        when(userVerificationRepository.findByToken("tok123")).thenReturn(Optional.of(v));
+        assertEquals("tok123", userVerificationService.findByToken("tok123").getToken());
     }
 
     @Test
-    void findByToken_withWrongToken_throwsException() {
-
-        when(userVerificationRepository.findByToken("wrong"))
-                .thenReturn(Optional.empty());
-
-        assertThrows(TokenNotFoundException.class,
-                () -> userVerificationService.findByToken("wrong"));
+    void findByToken_notFound_throwsTokenNotFoundException() {
+        when(userVerificationRepository.findByToken("bad")).thenReturn(Optional.empty());
+        assertThrows(TokenNotFoundException.class, () -> userVerificationService.findByToken("bad"));
     }
 }

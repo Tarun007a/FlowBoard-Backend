@@ -6,6 +6,7 @@ import com.flowboard.card_service.client.WorkspaceClient;
 import com.flowboard.card_service.dto.CardRequestDto;
 import com.flowboard.card_service.dto.CardResponseDto;
 import com.flowboard.card_service.dto.CardUpdateDto;
+import com.flowboard.card_service.entity.ActivityType;
 import com.flowboard.card_service.entity.Card;
 import com.flowboard.card_service.entity.Priority;
 import com.flowboard.card_service.entity.Status;
@@ -14,8 +15,10 @@ import com.flowboard.card_service.exception.IllegalOperationException;
 import com.flowboard.card_service.mapper.impl.CardRequestMapper;
 import com.flowboard.card_service.mapper.impl.CardResponseMapper;
 import com.flowboard.card_service.repository.CardRepository;
+import com.flowboard.card_service.service.CardActivityService;
 import com.flowboard.card_service.service.NotificationProcedure;
 import com.flowboard.card_service.service.impl.CardServiceImpl;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -35,6 +38,7 @@ import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
 
 @ExtendWith(MockitoExtension.class)
 class CardServiceImplTest {
@@ -59,6 +63,9 @@ class CardServiceImplTest {
 
     @Mock
     private NotificationProcedure notificationProducer;
+
+    @Mock
+    private CardActivityService cardActivityService;
 
     @InjectMocks
     private CardServiceImpl cardService;
@@ -300,36 +307,6 @@ class CardServiceImplTest {
     }
 
     @Test
-    void assignCard_positive() {
-
-        Card card = new Card();
-        card.setCardId(1);
-        card.setBoardId(10);
-        card.setTitle("Task");
-
-        CardResponseDto response = new CardResponseDto();
-
-        when(cardRepository.findById(1)).thenReturn(Optional.of(card));
-
-        when(boardClient.isPrivate(10)).thenReturn(false);
-        when(boardClient.getWorkspaceId(10)).thenReturn(100);
-
-        when(workspaceClient.isMember(100, 1)).thenReturn(true);
-
-        // second validation uses assigneeId as boardId in your code
-        when(boardClient.isPrivate(5)).thenReturn(false);
-        when(boardClient.getWorkspaceId(5)).thenReturn(100);
-        when(workspaceClient.isMember(100, 1)).thenReturn(true);
-
-        when(cardRepository.save(card)).thenReturn(card);
-        when(responseMapper.mapTo(card)).thenReturn(response);
-
-        CardResponseDto result = cardService.assignCard(1, 5, 1);
-
-        assertNotNull(result);
-    }
-
-    @Test
     void updatePriority_positive() {
 
         Card card = getCard();
@@ -436,5 +413,424 @@ class CardServiceImplTest {
 
         assertEquals(2,
                 cardService.getAssignedUserId(1));
+    }
+
+    @Test
+    void getCardsByList_whenEmpty_throwsException() {
+
+        when(cardRepository.findByListIdAndIsArchivedFalseOrderByPosition(1))
+                .thenReturn(List.of());
+
+        assertThrows(CardNotFoundException.class,
+                () -> cardService.getCardsByList(1, 1));
+    }
+
+    @Test
+    void getCardsByAssignee_whenEmpty_throwsException() {
+
+        when(cardRepository.findByAssigneeId(1))
+                .thenReturn(List.of());
+
+        assertThrows(CardNotFoundException.class,
+                () -> cardService.getCardsByAssignee(1, 1));
+    }
+
+    @Test
+    void reorderCards_whenCardCountMismatch_throwsException() {
+
+        Card card = getCard();
+
+        when(cardRepository.findByListIdAndIsArchivedFalseOrderByPosition(1))
+                .thenReturn(List.of(card));
+
+        assertThrows(IllegalOperationException.class,
+                () -> cardService.reorderCards(
+                        1,
+                        List.of(1, 2),
+                        1
+                ));
+    }
+
+    @Test
+    void reorderCards_whenInvalidCardId_throwsException() {
+
+        Card card = getCard();
+
+        when(cardRepository.findByListIdAndIsArchivedFalseOrderByPosition(1))
+                .thenReturn(List.of(card));
+
+        allowModification();
+
+        assertThrows(IllegalOperationException.class,
+                () -> cardService.reorderCards(
+                        1,
+                        List.of(999),
+                        1
+                ));
+    }
+
+    @Test
+    void moveCard_whenInvalidPosition_throwsException() {
+
+        Card card = getCard();
+
+        when(cardRepository.findById(1))
+                .thenReturn(Optional.of(card));
+
+        allowModification();
+
+        when(listClient.getBoardId(2))
+                .thenReturn(1);
+
+        when(cardRepository.findByListIdAndIsArchivedFalseOrderByPosition(2))
+                .thenReturn(List.of(card));
+
+        assertThrows(IllegalOperationException.class,
+                () -> cardService.moveCard(1, 2, 99, 1));
+    }
+
+    @Test
+    void getAssignedUserId_whenCardMissing_throwsException() {
+
+        when(cardRepository.findById(99))
+                .thenReturn(Optional.empty());
+
+        assertThrows(CardNotFoundException.class,
+                () -> cardService.getAssignedUserId(99));
+    }
+
+    @Test
+    void archiveCard_whenCardMissing_throwsException() {
+
+        when(cardRepository.findById(1))
+                .thenReturn(Optional.empty());
+
+        assertThrows(CardNotFoundException.class,
+                () -> cardService.archiveCard(1, 1));
+    }
+
+    @Test
+    void unarchiveCard_whenCardMissing_throwsException() {
+
+        when(cardRepository.findById(1))
+                .thenReturn(Optional.empty());
+
+        assertThrows(CardNotFoundException.class,
+                () -> cardService.unarchiveCard(1, 1));
+    }
+
+    @Test
+    void deleteCard_whenCardMissing_throwsException() {
+
+        when(cardRepository.findById(1))
+                .thenReturn(Optional.empty());
+
+        assertThrows(CardNotFoundException.class,
+                () -> cardService.deleteCard(1, 1));
+    }
+
+    @Test
+    void createCard_logsActivity() {
+
+        CardRequestDto dto = new CardRequestDto();
+
+        Card card = new Card();
+        card.setBoardId(10);
+        card.setListId(20);
+        card.setAssigneeId(5);
+        card.setPriority(Priority.HIGH);
+        card.setTitle("Task");
+
+        Card saved = new Card();
+        saved.setCardId(1);
+        saved.setBoardId(10);
+        saved.setTitle("Task");
+
+        when(requestMapper.mapTo(dto)).thenReturn(card);
+
+        when(boardClient.isPrivate(10)).thenReturn(false);
+        when(boardClient.getWorkspaceId(10)).thenReturn(100);
+
+        when(workspaceClient.isMember(100, 1)).thenReturn(true);
+        when(workspaceClient.isMember(100, 5)).thenReturn(true);
+
+        when(cardRepository.maxPosition(20)).thenReturn(0);
+
+        when(cardRepository.save(card)).thenReturn(saved);
+
+        when(responseMapper.mapTo(saved))
+                .thenReturn(new CardResponseDto());
+
+        cardService.createCard(dto, 1);
+
+        verify(cardActivityService).logActivity(
+                eq(1),
+                eq(1),
+                eq(ActivityType.CREATED),
+                any()
+        );
+    }
+
+    @Test
+    void updateStatus_logsActivity() {
+
+        Card card = getCard();
+
+        when(cardRepository.findById(1))
+                .thenReturn(Optional.of(card));
+
+        allowModification();
+
+        when(cardRepository.save(card))
+                .thenReturn(card);
+
+        when(responseMapper.mapTo(card))
+                .thenReturn(new CardResponseDto());
+
+        cardService.updateStatus(1, Status.DONE, 1);
+
+        verify(cardActivityService).logActivity(
+                eq(1),
+                eq(1),
+                eq(ActivityType.STATUS_CHANGED),
+                any()
+        );
+    }
+
+    @Test
+    void assignCard_logsActivity() {
+
+        Card card = getCard();
+
+        when(cardRepository.findById(1))
+                .thenReturn(Optional.of(card));
+
+        allowModification();
+
+        when(workspaceClient.isMember(10, 2))
+                .thenReturn(true);
+
+        when(cardRepository.save(card))
+                .thenReturn(card);
+
+        when(responseMapper.mapTo(card))
+                .thenReturn(new CardResponseDto());
+
+        cardService.assignCard(1, 2, 1);
+
+        verify(cardActivityService).logActivity(
+                eq(1),
+                eq(1),
+                eq(ActivityType.ASSIGNED),
+                any()
+        );
+    }
+
+    @Test
+    void getCardsByBoard_privateBoardAndNotMember_throwsException() {
+
+        when(boardClient.isPrivate(1))
+                .thenReturn(true);
+
+        when(boardClient.isMember(1, 1))
+                .thenReturn(false);
+
+        assertThrows(IllegalOperationException.class,
+                () -> cardService.getCardsByBoard(1, 1));
+    }
+
+    @Test
+    void getCardById_privateWorkspaceAndNotMember_throwsException() {
+
+        Card card = getCard();
+
+        when(cardRepository.findById(1))
+                .thenReturn(Optional.of(card));
+
+        when(boardClient.isPrivate(1))
+                .thenReturn(false);
+
+        when(boardClient.getWorkspaceId(1))
+                .thenReturn(10);
+
+        when(workspaceClient.isPrivate(10))
+                .thenReturn(true);
+
+        when(workspaceClient.isMember(10, 1))
+                .thenReturn(false);
+
+        assertThrows(IllegalOperationException.class,
+                () -> cardService.getCardById(1, 1));
+    }
+
+    @Test
+    void updateCard_whenUserCannotModify_throwsException() {
+
+        Card card = getCard();
+
+        when(cardRepository.findById(1))
+                .thenReturn(Optional.of(card));
+
+        when(boardClient.isPrivate(1))
+                .thenReturn(false);
+
+        when(boardClient.getWorkspaceId(1))
+                .thenReturn(10);
+
+        when(workspaceClient.isMember(10, 1))
+                .thenReturn(false);
+
+        assertThrows(IllegalOperationException.class,
+                () -> cardService.updateCard(
+                        1,
+                        new CardUpdateDto(),
+                        1
+                ));
+    }
+
+    @Test
+    void assignCard_whenAssigneeNotAllowed_throwsException() {
+
+        Card card = getCard();
+
+        when(cardRepository.findById(1))
+                .thenReturn(Optional.of(card));
+
+        allowModification();
+
+        when(workspaceClient.isMember(10, 2))
+                .thenReturn(false);
+
+        assertThrows(IllegalOperationException.class,
+                () -> cardService.assignCard(1, 2, 1));
+    }
+
+    @Test
+    void cardSummaryForWorkspace_withZeroTotal_returnsZeroCompletion() {
+
+        when(boardClient.getBoardIdByWorkspaceId(1))
+                .thenReturn(List.of(1));
+
+        when(cardRepository.countByBoardIdIn(anyList()))
+                .thenReturn(0L);
+
+        var result = cardService.cardSummaryForWorkspace(1);
+
+        assertEquals(0, result.getCompletionRate());
+    }
+
+    @Test
+    void cardSummaryForWorkspace_positive() {
+
+        when(boardClient.getBoardIdByWorkspaceId(1))
+                .thenReturn(List.of(1));
+
+        when(cardRepository.countByBoardIdInAndStatus(anyList(), eq(Status.TO_DO)))
+                .thenReturn(2L);
+
+        when(cardRepository.countByBoardIdInAndStatus(anyList(), eq(Status.IN_PROGRESS)))
+                .thenReturn(1L);
+
+        when(cardRepository.countByBoardIdInAndStatus(anyList(), eq(Status.IN_REVIEW)))
+                .thenReturn(1L);
+
+        when(cardRepository.countByBoardIdInAndStatus(anyList(), eq(Status.DONE)))
+                .thenReturn(6L);
+
+        when(cardRepository.countByBoardIdIn(anyList()))
+                .thenReturn(10L);
+
+        when(cardRepository.countByBoardIdInAndDueDateBeforeAndStatusNot(
+                anyList(),
+                any(LocalDateTime.class),
+                eq(Status.DONE)
+        )).thenReturn(1L);
+
+        var result = cardService.cardSummaryForWorkspace(1);
+
+        assertEquals(60, result.getCompletionRate());
+    }
+
+
+
+    @Test
+    void findByWorkspace_positive() {
+
+        when(boardClient.getBoardIdByWorkspaceId(1))
+                .thenReturn(List.of(1));
+
+        Card card = getCard();
+
+        when(cardRepository.findByBoardIdIn(anyList()))
+                .thenReturn(List.of(card));
+
+        assertEquals(1,
+                cardService.findByWorkspace(1).size());
+    }
+
+    @Test
+    void updatePriority_logsActivity() {
+
+        Card card = getCard();
+
+        when(cardRepository.findById(1))
+                .thenReturn(Optional.of(card));
+
+        allowModification();
+
+        when(cardRepository.save(card))
+                .thenReturn(card);
+
+        when(responseMapper.mapTo(card))
+                .thenReturn(new CardResponseDto());
+
+        cardService.updatePriority(1, Priority.HIGH, 1);
+
+        verify(cardActivityService).logActivity(
+                eq(1),
+                eq(1),
+                eq(ActivityType.PRIORITY_CHANGED),
+                any()
+        );
+    }
+
+    @Test
+    void archiveCard_logsActivity() {
+
+        Card card = getCard();
+
+        when(cardRepository.findById(1))
+                .thenReturn(Optional.of(card));
+
+        allowModification();
+
+        cardService.archiveCard(1, 1);
+
+        verify(cardActivityService).logActivity(
+                eq(1),
+                eq(1),
+                eq(ActivityType.ARCHIVED),
+                any()
+        );
+    }
+
+    @Test
+    void unarchiveCard_logsActivity() {
+
+        Card card = getCard();
+
+        when(cardRepository.findById(1))
+                .thenReturn(Optional.of(card));
+
+        allowModification();
+
+        cardService.unarchiveCard(1, 1);
+
+        verify(cardActivityService).logActivity(
+                eq(1),
+                eq(1),
+                eq(ActivityType.UNARCHIVED),
+                any()
+        );
     }
 }

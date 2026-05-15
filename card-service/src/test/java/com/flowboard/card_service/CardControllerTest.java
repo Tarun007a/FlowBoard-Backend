@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flowboard.card_service.controller.CardController;
 import com.flowboard.card_service.dto.CardRequestDto;
 import com.flowboard.card_service.dto.CardResponseDto;
+import com.flowboard.card_service.dto.CardStatusSummaryDto;
 import com.flowboard.card_service.dto.CardUpdateDto;
 import com.flowboard.card_service.entity.Priority;
 import com.flowboard.card_service.entity.Status;
@@ -255,6 +256,99 @@ class CardControllerTest {
 
         mockMvc.perform(get("/api/v1/cards/overdue")
                         .header("X-User-Id", 1))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void createCard_withoutHeader_returns400() throws Exception {
+
+        mockMvc.perform(post("/api/v1/cards/create")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void getCard_withoutHeader_returns400() throws Exception {
+
+        mockMvc.perform(get("/api/v1/cards/get/1"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void assignCard_withoutHeader_returns400() throws Exception {
+
+        mockMvc.perform(put("/api/v1/cards/1/assign")
+                        .param("assigneeId", "2"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void updatePriority_withInvalidPriority_returns400() throws Exception {
+
+        mockMvc.perform(put("/api/v1/cards/1/priority")
+                        .header("X-User-Id", 1)
+                        .param("priority", "INVALID"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void updateStatus_withInvalidStatus_returns400() throws Exception {
+
+        mockMvc.perform(put("/api/v1/cards/1/status")
+                        .header("X-User-Id", 1)
+                        .param("status", "INVALID"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void getAssignedUserId_returns200() throws Exception {
+
+        when(cardService.getAssignedUserId(1))
+                .thenReturn(5);
+
+        mockMvc.perform(get("/api/v1/cards/assigned-user/1"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("5"));
+    }
+
+    @Test
+    void getCardSummaryByWorkspace_returns200() throws Exception {
+
+        when(cardService.cardSummaryForWorkspace(1))
+                .thenReturn(new CardStatusSummaryDto());
+
+        mockMvc.perform(get("/api/v1/cards/analytics/summary/workspace/1"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void getCardSummaryByUser_returns200() throws Exception {
+
+        when(cardService.cardSummaryForUser(1, 2))
+                .thenReturn(new CardStatusSummaryDto());
+
+        mockMvc.perform(get("/api/v1/cards/analytics/user/1/2"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void getCardSummaryByBoard_returns200() throws Exception {
+
+        when(cardService.cardSummaryForBoard(1))
+                .thenReturn(new CardStatusSummaryDto());
+
+        mockMvc.perform(get("/api/v1/cards/analytics/board/1"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void getAllCardByWorkspace_returns200() throws Exception {
+
+        when(cardService.findByWorkspace(1))
+                .thenReturn(List.of());
+
+        mockMvc.perform(get("/api/v1/cards/analytics/workspace/1"))
                 .andExpect(status().isOk());
     }
 }

@@ -215,4 +215,47 @@ class WorkspaceControllerTest {
         mockMvc.perform(get("/api/v1/workspaces/me"))
                 .andExpect(status().isBadRequest());
     }
+
+    @Test
+    void handleIsMember_false() throws Exception {
+
+        when(workspaceService.isMember(1, 2))
+                .thenReturn(false);
+
+        mockMvc.perform(get("/api/v1/workspaces/1/member/2"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("false"));
+    }
+
+    @Test
+    void handleIsPrivate_false() throws Exception {
+
+        when(workspaceService.isPrivate(1))
+                .thenReturn(false);
+
+        mockMvc.perform(get("/api/v1/workspaces/private/1"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("false"));
+    }
+
+    @Test
+    void checkAccess_false() throws Exception {
+
+        when(workspaceService.checkModificationAccess(1, 1))
+                .thenReturn(false);
+
+        mockMvc.perform(get("/api/v1/workspaces/access/1")
+                        .header("X-User-Id", "1"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("false"));
+    }
+
+    @Test
+    void handleCreate_missingHeader_negative() throws Exception {
+
+        mockMvc.perform(post("/api/v1/workspaces/create")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
+                .andExpect(status().isBadRequest());
+    }
 }

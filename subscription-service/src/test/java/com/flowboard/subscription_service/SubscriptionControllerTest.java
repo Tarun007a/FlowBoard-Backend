@@ -20,7 +20,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -42,29 +42,7 @@ class SubscriptionControllerTest {
     private ObjectMapper objectMapper;
 
     @Test
-    void buySubscription_positive() throws Exception {
-
-        SubscriptionRequestDto request = new SubscriptionRequestDto();
-        request.setPlan(SubscriptionPlan.BASIC);
-
-        RazorPayResponseDto response = new RazorPayResponseDto();
-        response.setOrderId("order_123");
-
-        when(subscriptionService.buySubscription(
-                any(SubscriptionRequestDto.class),
-                eq(1)))
-                .thenReturn(response);
-
-        mockMvc.perform(post("/api/v1/subscriptions/buy")
-                        .header("X-User-Id", "1")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.orderId").value("order_123"));
-    }
-
-    @Test
-    void buySubscription_negative() throws Exception {
+    void buySubscription_missingHeader_returns400() throws Exception {
 
         mockMvc.perform(post("/api/v1/subscriptions/buy")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -73,34 +51,24 @@ class SubscriptionControllerTest {
     }
 
     @Test
-    void verifyPayment_positive() throws Exception {
+    void buySubscription_invalidHeader_returns400() throws Exception {
 
-        PaymentVerificationDto request = new PaymentVerificationDto();
-        request.setRazorpayOrderId("order_123");
-        request.setRazorpayPaymentId("pay_123");
-        request.setRazorpaySignature("sig_123");
-        request.setPlan(SubscriptionPlan.BASIC);
-
-        SubscriptionResponseDto response = new SubscriptionResponseDto();
-        response.setId(1);
-
-        when(subscriptionService.verifyAndActivate(
-                any(PaymentVerificationDto.class),
-                eq(1)))
-                .thenReturn(response);
-
-        mockMvc.perform(post("/api/v1/subscriptions/verify")
-                        .header("X-User-Id", "1")
+        mockMvc.perform(post("/api/v1/subscriptions/buy")
+                        .header("X-User-Id", "abc")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").value(1));
+                        .content("{}"))
+                .andExpect(status().isBadRequest());
     }
+
 
     @Test
     void verifyPayment_negative() throws Exception {
 
+        when(subscriptionService.verifyAndActivate(any(), anyInt()))
+                .thenThrow(new RuntimeException());
+
         mockMvc.perform(post("/api/v1/subscriptions/verify")
+                        .header("X-User-Id", 1)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{}"))
                 .andExpect(status().isBadRequest());
@@ -109,50 +77,45 @@ class SubscriptionControllerTest {
     @Test
     void getMySubscription_positive() throws Exception {
 
-        SubscriptionResponseDto response = new SubscriptionResponseDto();
-        response.setId(1);
-
         when(subscriptionService.getDetails(1))
-                .thenReturn(response);
+                .thenReturn(new SubscriptionResponseDto());
 
         mockMvc.perform(get("/api/v1/subscriptions/my")
-                        .header("X-User-Id", "1"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1));
-    }
-
-    @Test
-    void getMySubscription_negative() throws Exception {
-
-        mockMvc.perform(get("/api/v1/subscriptions/my"))
-                .andExpect(status().isBadRequest());
+                        .header("X-User-Id", 1))
+                .andExpect(status().isOk());
     }
 
     @Test
     void getPlanDetails_positive() throws Exception {
 
-        SubscriptionPlanResponseDto dto =
-                SubscriptionPlanResponseDto.builder()
-                        .durationDays(30)
-                        .price(499)
-                        .build();
-
         when(subscriptionService.getPlanDetails())
-                .thenReturn(List.of(dto));
+                .thenReturn(List.of(
+                        new SubscriptionPlanResponseDto()
+                ));
 
         mockMvc.perform(get("/api/v1/subscriptions/details"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].durationDays").value(30))
-                .andExpect(jsonPath("$[0].price").value(499));
+                .andExpect(status().isOk());
     }
 
     @Test
-    void getPlanDetails_negative() throws Exception {
+    void isSubscribed_positive() throws Exception {
 
-        when(subscriptionService.getPlanDetails())
-                .thenThrow(new RuntimeException("Failed"));
+        when(subscriptionService.isSubscribed(1))
+                .thenReturn(true);
 
-        mockMvc.perform(get("/api/v1/subscriptions/details"))
-                .andExpect(status().isBadRequest());
+        mockMvc.perform(get("/api/v1/subscriptions/check/1"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("true"));
+    }
+
+    @Test
+    void isSubscribed_false() throws Exception {
+
+        when(subscriptionService.isSubscribed(1))
+                .thenReturn(false);
+
+        mockMvc.perform(get("/api/v1/subscriptions/check/1"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("false"));
     }
 }

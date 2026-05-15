@@ -18,119 +18,90 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.any;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class UserOtpServiceImplTest {
 
-    @Mock
-    private UserRepository userRepository;
-
-    @Mock
-    private UserOtpRepository userOtpRepository;
-
-    @Mock
-    private EmailService emailService;
+    @Mock private UserRepository userRepository;
+    @Mock private UserOtpRepository userOtpRepository;
+    @Mock private EmailService emailService;
 
     @InjectMocks
     private UserOtpServiceImpl userOtpService;
 
+    private User user(int id, String email) {
+        User u = new User(); u.setUserId(id); u.setEmail(email); return u;
+    }
+
+    // ── first OTP request ─────────────────────────────────────────────────
+
     @Test
-    void sendOtp_withNewUserOtp_createsOtpAndSendsMail() {
-
-        User user = new User();
-        user.setUserId(1);
-        user.setEmail("john@gmail.com");
-
-        when(userRepository.findByEmail("john@gmail.com"))
-                .thenReturn(Optional.of(user));
-
-        when(userOtpRepository.findByUserId(1))
-                .thenReturn(Optional.empty());
+    void sendOtp_noExistingOtp_savesNewRecordAndSendsEmail() {
+        User u = user(1, "john@gmail.com");
+        when(userRepository.findByEmail("john@gmail.com")).thenReturn(Optional.of(u));
+        when(userOtpRepository.findByUserId(1)).thenReturn(Optional.empty());
 
         userOtpService.sendOtp("john@gmail.com");
 
         verify(userOtpRepository).save(any(UserOtp.class));
-        verify(emailService).sendOtpEmail(any(), any());
+        verify(emailService).sendOtpEmail(eq("john@gmail.com"), any());
     }
 
-    @Test
-    void sendOtp_withWrongEmail_throwsException() {
-
-        when(userRepository.findByEmail("wrong@gmail.com"))
-                .thenReturn(Optional.empty());
-
-        assertThrows(UserNotFoundException.class,
-                () -> userOtpService.sendOtp("wrong@gmail.com"));
-    }
+    // ── re-send after 5 minutes ───────────────────────────────────────────
 
     @Test
-    void sendOtp_withExistingOtpAfter5Min_updatesOtp() {
+    void sendOtp_existingOtpAfter5Min_updatesOtpAndResends() {
+        User u = user(1, "john@gmail.com");
+        UserOtp existing = new UserOtp();
+        existing.setUserId(1); existing.setOtpSent(1);
+        existing.setLastOtpDateTime(LocalDateTime.now().minusMinutes(10));
 
-        User user = new User();
-        user.setUserId(1);
-        user.setEmail("john@gmail.com");
-
-        UserOtp userOtp = new UserOtp();
-        userOtp.setUserId(1);
-        userOtp.setOtpSent(1);
-        userOtp.setLastOtpDateTime(LocalDateTime.now().minusMinutes(10));
-
-        when(userRepository.findByEmail("john@gmail.com"))
-                .thenReturn(Optional.of(user));
-
-        when(userOtpRepository.findByUserId(1))
-                .thenReturn(Optional.of(userOtp));
+        when(userRepository.findByEmail("john@gmail.com")).thenReturn(Optional.of(u));
+        when(userOtpRepository.findByUserId(1)).thenReturn(Optional.of(existing));
 
         userOtpService.sendOtp("john@gmail.com");
 
-        verify(userOtpRepository).save(userOtp);
+        verify(userOtpRepository).save(existing);
         verify(emailService).sendOtpEmail(any(), any());
     }
 
+    // ── throttle: within 5 minutes ────────────────────────────────────────
+
     @Test
-    void sendOtp_withOtpBefore5Min_throwsException() {
+    void sendOtp_existingOtpBefore5Min_throwsOtpException() {
+        User u = user(1, "john@gmail.com");
+        UserOtp existing = new UserOtp();
+        existing.setUserId(1); existing.setOtpSent(1);
+        existing.setLastOtpDateTime(LocalDateTime.now());
 
-        User user = new User();
-        user.setUserId(1);
-        user.setEmail("john@gmail.com");
+        when(userRepository.findByEmail("john@gmail.com")).thenReturn(Optional.of(u));
+        when(userOtpRepository.findByUserId(1)).thenReturn(Optional.of(existing));
 
-        UserOtp userOtp = new UserOtp();
-        userOtp.setUserId(1);
-        userOtp.setOtpSent(1);
-        userOtp.setLastOtpDateTime(LocalDateTime.now());
-
-        when(userRepository.findByEmail("john@gmail.com"))
-                .thenReturn(Optional.of(user));
-
-        when(userOtpRepository.findByUserId(1))
-                .thenReturn(Optional.of(userOtp));
-
-        assertThrows(OtpException.class,
-                () -> userOtpService.sendOtp("john@gmail.com"));
+        assertThrows(OtpException.class, () -> userOtpService.sendOtp("john@gmail.com"));
     }
 
+    // ── daily limit reached ────────────────────────────────────────────────
+
     @Test
-    void sendOtp_withOtpLimitReached_throwsException() {
+    void sendOtp_dailyLimitReached_throwsOtpException() {
+        User u = user(1, "john@gmail.com");
+        UserOtp existing = new UserOtp();
+        existing.setUserId(1); existing.setOtpSent(5);
+        existing.setLastOtpDateTime(LocalDateTime.now().minusMinutes(10));
 
-        User user = new User();
-        user.setUserId(1);
-        user.setEmail("john@gmail.com");
+        when(userRepository.findByEmail("john@gmail.com")).thenReturn(Optional.of(u));
+        when(userOtpRepository.findByUserId(1)).thenReturn(Optional.of(existing));
 
-        UserOtp userOtp = new UserOtp();
-        userOtp.setUserId(1);
-        userOtp.setOtpSent(5);
-        userOtp.setLastOtpDateTime(LocalDateTime.now().minusMinutes(10));
+        assertThrows(OtpException.class, () -> userOtpService.sendOtp("john@gmail.com"));
+    }
 
-        when(userRepository.findByEmail("john@gmail.com"))
-                .thenReturn(Optional.of(user));
+    // ── unknown email ─────────────────────────────────────────────────────
 
-        when(userOtpRepository.findByUserId(1))
-                .thenReturn(Optional.of(userOtp));
-
-        assertThrows(OtpException.class,
-                () -> userOtpService.sendOtp("john@gmail.com"));
+    @Test
+    void sendOtp_unknownEmail_throwsUserNotFoundException() {
+        when(userRepository.findByEmail("wrong@gmail.com")).thenReturn(Optional.empty());
+        assertThrows(UserNotFoundException.class, () -> userOtpService.sendOtp("wrong@gmail.com"));
     }
 }

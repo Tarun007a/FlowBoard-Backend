@@ -315,4 +315,133 @@ class WorkspaceServiceImplTest {
         assertThrows(WorkspaceNotFoundException.class,
                 () -> workspaceService.getOwenerId(99));
     }
+
+    @Test
+    void getJoinedWorkspaces_empty_positive() {
+
+        PageImpl<WorkspaceMember> memberPage =
+                new PageImpl<>(
+                        List.of(),
+                        PageRequest.of(0, 5),
+                        0
+                );
+
+        when(workspaceMemberRepository.findByUserId(
+                anyInt(),
+                any()))
+                .thenReturn(memberPage);
+
+        CustomPageResponse<WorkspaceResponseDto> result =
+                workspaceService.getJoinedWorkspaces(
+                        1, 0, 5, "workspaceId", "asc"
+                );
+
+        assertEquals(0, result.getContent().size());
+    }
+
+    @Test
+    void getMyWorkspaces_desc_positive() {
+
+        PageImpl<Workspace> page =
+                new PageImpl<>(
+                        List.of(getWorkspace()),
+                        PageRequest.of(0, 5),
+                        1
+                );
+
+        when(workspaceRepository.findByOwnerId(
+                anyInt(),
+                any()))
+                .thenReturn(page);
+
+        when(workspaceResponseMapper.mapTo(any(Workspace.class)))
+                .thenReturn(new WorkspaceResponseDto());
+
+        CustomPageResponse<WorkspaceResponseDto> result =
+                workspaceService.getMyWorkspaces(
+                        1, 0, 5, "workspaceId", "desc"
+                );
+
+        assertEquals(1, result.getContent().size());
+    }
+
+    @Test
+    void getPublicWorkspace_desc_positive() {
+
+        PageImpl<Workspace> page =
+                new PageImpl<>(
+                        List.of(getWorkspace()),
+                        PageRequest.of(0, 5),
+                        1
+                );
+
+        when(workspaceRepository.findByVisibility(
+                any(Visibility.class),
+                any()))
+                .thenReturn(page);
+
+        when(workspaceResponseMapper.mapTo(any(Workspace.class)))
+                .thenReturn(new WorkspaceResponseDto());
+
+        CustomPageResponse<WorkspaceResponseDto> result =
+                workspaceService.getPublicWorkspace(
+                        0, 5, "workspaceId", "desc"
+                );
+
+        assertEquals(1, result.getContent().size());
+    }
+
+    @Test
+    void checkModificationAccess_false() {
+
+        Workspace workspace = getWorkspace();
+        workspace.setOwnerId(5);
+
+        when(workspaceRepository.findById(1))
+                .thenReturn(Optional.of(workspace));
+
+        assertEquals(false,
+                workspaceService.checkModificationAccess(1, 1));
+    }
+
+    @Test
+    void countMember_positive() {
+
+        when(workspaceMemberRepository.countByWorkspaceId(1))
+                .thenReturn(10);
+
+        assertEquals(10,
+                workspaceService.countMember(1));
+    }
+
+    @Test
+    void workspaceByUser_positive() {
+
+        when(workspaceRepository.findByOwnerId(1))
+                .thenReturn(List.of(getWorkspace()));
+
+        assertEquals(1,
+                workspaceService.workspaceByUser(1).size());
+    }
+
+    @Test
+    void isOwner_false() {
+
+        when(workspaceRepository.findById(1))
+                .thenReturn(Optional.of(getWorkspace()));
+
+        assertEquals(false,
+                workspaceService.isOwner(1, 99));
+    }
+
+    @Test
+    void getWorkspaceDto_positive() {
+
+        when(workspaceRepository.findById(1))
+                .thenReturn(Optional.of(getWorkspace()));
+
+        assertEquals(1,
+                workspaceService.getWorkspaceDto(1)
+                        .getWorkspaceId());
+    }
 }

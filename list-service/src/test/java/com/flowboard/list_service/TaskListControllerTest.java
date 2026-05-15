@@ -19,9 +19,8 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.when;
 
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -216,6 +215,107 @@ class TaskListControllerTest {
     void missingHeader_negative() throws Exception {
 
         mockMvc.perform(get("/api/v1/lists/1"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void updateTaskList_withoutHeader_returns400() throws Exception {
+
+        mockMvc.perform(put("/api/v1/lists/update/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void reorderTaskLists_withoutHeader_returns400() throws Exception {
+
+        mockMvc.perform(put("/api/v1/lists/board/1/reorder")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("[]"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void archiveTaskList_withoutHeader_returns400() throws Exception {
+
+        mockMvc.perform(patch("/api/v1/lists/1/archive"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void getTotalListsForWorkspace_positive() throws Exception {
+
+        when(taskListService.totalListsByWorkspace(1))
+                .thenReturn(5);
+
+        mockMvc.perform(get("/api/v1/lists/analytics/workspace/total/1"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("5"));
+    }
+
+    @Test
+    void getTotalListsForBoard_positive() throws Exception {
+
+        when(taskListService.totalListsByBoard(1))
+                .thenReturn(3);
+
+        mockMvc.perform(get("/api/v1/lists/analytics/count/1"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("3"));
+    }
+
+    @Test
+    void getAllListsForBoard_positive() throws Exception {
+
+        when(taskListService.allListsByBoard(1))
+                .thenReturn(List.of());
+
+        mockMvc.perform(get("/api/v1/lists/analytics/get-all/1"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void invalidHeader_negative() throws Exception {
+
+        mockMvc.perform(get("/api/v1/lists/1")
+                        .header("X-User-Id", "abc"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void archiveTaskList_negative() throws Exception {
+
+        doThrow(new RuntimeException())
+                .when(taskListService)
+                .archiveTaskList(1, 1);
+
+        mockMvc.perform(patch("/api/v1/lists/1/archive")
+                        .header("X-User-Id", 1))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void unarchiveTaskList_negative() throws Exception {
+
+        doThrow(new RuntimeException())
+                .when(taskListService)
+                .unarchiveTaskList(1, 1);
+
+        mockMvc.perform(patch("/api/v1/lists/1/unarchive")
+                        .header("X-User-Id", 1))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void deleteTaskList_negative() throws Exception {
+
+        doThrow(new RuntimeException())
+                .when(taskListService)
+                .deleteTaskList(1, 1);
+
+        mockMvc.perform(delete("/api/v1/lists/delete/1")
+                        .header("X-User-Id", 1))
                 .andExpect(status().isBadRequest());
     }
 }

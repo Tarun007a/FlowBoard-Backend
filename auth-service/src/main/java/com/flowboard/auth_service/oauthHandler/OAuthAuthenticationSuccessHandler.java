@@ -56,6 +56,7 @@ public class OAuthAuthenticationSuccessHandler extends SimpleUrlAuthenticationSu
             user.setProvider(PROVIDER.GOOGLE);
             user.setAvatarUrl(avatarUrl);
             user.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
+            user.setActive(true);
             userRepo.save(user);
             userId = user.getUserId();
         }

@@ -4,6 +4,7 @@ import com.flowboard.card_service.client.BoardClient;
 import com.flowboard.card_service.client.ListClient;
 import com.flowboard.card_service.client.WorkspaceClient;
 import com.flowboard.card_service.dto.*;
+import com.flowboard.card_service.entity.ActivityType;
 import com.flowboard.card_service.entity.Card;
 import com.flowboard.card_service.entity.Priority;
 import com.flowboard.card_service.entity.Status;
@@ -13,6 +14,7 @@ import com.flowboard.card_service.mapper.Mapper;
 import com.flowboard.card_service.mapper.impl.CardRequestMapper;
 import com.flowboard.card_service.mapper.impl.CardResponseMapper;
 import com.flowboard.card_service.repository.CardRepository;
+import com.flowboard.card_service.service.CardActivityService;
 import com.flowboard.card_service.service.CardService;
 import com.flowboard.card_service.service.NotificationProcedure;
 import com.flowboard.card_service.util.AppConstants;
@@ -37,6 +39,7 @@ public class CardServiceImpl implements CardService {
     private final BoardClient boardClient;
     private final ListClient listClient;
     private final NotificationProcedure notificationProducer;
+    private final CardActivityService cardActivityService;
 
     private void sendNotification(Integer recipientId,
                                   Integer actorId,
@@ -62,7 +65,6 @@ public class CardServiceImpl implements CardService {
 
     @Override
     public CardResponseDto createCard(CardRequestDto cardRequestDto, Integer userId) {
-        log.info("Create card requested for list {} by user {}", cardRequestDto.getListId(), userId);
         Card card = requestMapper.mapTo(cardRequestDto);
 
         Integer boardId = card.getBoardId();
@@ -80,7 +82,12 @@ public class CardServiceImpl implements CardService {
         card.setCreatedById(userId);
 
         Card savedCard = cardRepository.save(card);
-        log.info("Card created with id {} in list {}", savedCard.getCardId(), listId);
+        cardActivityService.logActivity(
+                savedCard.getCardId(),
+                userId,
+                ActivityType.CREATED,
+                "Created card '" + savedCard.getTitle() + "'"
+        );
 
         sendNotification(
                 card.getAssigneeId(),
@@ -157,7 +164,13 @@ public class CardServiceImpl implements CardService {
         card.setStatus(cardUpdateDto.getStatus());
 
         Card updatedCard = cardRepository.save(card);
-        log.info("Card updated with id {}", updatedCard.getCardId());
+        cardActivityService.logActivity(
+                updatedCard.getCardId(),
+                userId,
+                ActivityType.UPDATED,
+                "Updated card '" + updatedCard.getTitle() + "'"
+        );
+
         return responseMapper.mapTo(updatedCard);
     }
 
@@ -169,7 +182,12 @@ public class CardServiceImpl implements CardService {
         validateModificationRequest(card.getBoardId(), userId);
 
         cardRepository.delete(card);
-        log.info("Card deleted with id {}", cardId);
+        cardActivityService.logActivity(
+                cardId,
+                userId,
+                ActivityType.DELETED,
+                "Deleted card '" + card.getTitle() + "'"
+        );
     }
 
     @Override
@@ -214,6 +232,14 @@ public class CardServiceImpl implements CardService {
         cardRepository.saveAll(sourceCards);
         cardRepository.saveAll(targetCards);
 
+        cardActivityService.logActivity(
+                cardId,
+                userId,
+                ActivityType.MOVED,
+                "Moved card to list " + targetListId +
+                        " at position " + newPosition
+        );
+
         sendNotification(
                 card.getAssigneeId(),
                 userId,
@@ -222,7 +248,6 @@ public class CardServiceImpl implements CardService {
                 "Card '" + card.getTitle() + "' moved",
                 card.getCardId()
         );
-        log.info("Card moved with id {} to list {}", cardId, targetListId);
 
         return responseMapper.mapTo(card);
     }
@@ -255,7 +280,15 @@ public class CardServiceImpl implements CardService {
         }
 
         cardRepository.saveAll(cards);
-        log.info("Cards reordered in list {}", listId);
+        for(Integer cardId : orderedCardIds) {
+
+            cardActivityService.logActivity(
+                    cardId,
+                    userId,
+                    ActivityType.REORDERED,
+                    "Reordered card in list " + listId
+            );
+        }
     }
 
     @Override
@@ -279,7 +312,13 @@ public class CardServiceImpl implements CardService {
                 "You have been assigned: " + card.getTitle(),
                 card.getCardId()
         );
-        log.info("Card {} assigned to user {}", cardId, assigneeId);
+
+        cardActivityService.logActivity(
+                cardId,
+                userId,
+                ActivityType.ASSIGNED,
+                "Assigned card to user " + assigneeId
+        );
 
         return responseMapper.mapTo(updatedCard);
     }
@@ -304,7 +343,13 @@ public class CardServiceImpl implements CardService {
                 "Priority of '" + card.getTitle() + "' changed to " + priority,
                 card.getCardId()
         );
-        log.info("Priority updated for card {}", cardId);
+
+        cardActivityService.logActivity(
+                cardId,
+                userId,
+                ActivityType.PRIORITY_CHANGED,
+                "Priority changed to " + priority
+        );
 
         return responseMapper.mapTo(updatedCard);
     }
@@ -329,7 +374,12 @@ public class CardServiceImpl implements CardService {
                 "Status of '" + card.getTitle() + "' changed to " + status,
                 card.getCardId()
         );
-        log.info("Status updated for card {}", cardId);
+        cardActivityService.logActivity(
+                cardId,
+                userId,
+                ActivityType.STATUS_CHANGED,
+                "Status changed to " + status
+        );
 
         return responseMapper.mapTo(updated);
     }
@@ -345,7 +395,12 @@ public class CardServiceImpl implements CardService {
         card.setIsArchived(true);
 
         cardRepository.save(card);
-        log.info("Card archived with id {}", cardId);
+        cardActivityService.logActivity(
+                cardId,
+                userId,
+                ActivityType.ARCHIVED,
+                "Archived card '" + card.getTitle() + "'"
+        );
     }
 
     @Override
@@ -360,7 +415,13 @@ public class CardServiceImpl implements CardService {
         card.setIsArchived(false);
 
         cardRepository.save(card);
-        log.info("Card unarchived with id {}", cardId);
+
+        cardActivityService.logActivity(
+                cardId,
+                userId,
+                ActivityType.UNARCHIVED,
+                "Unarchived card '" + card.getTitle() + "'"
+        );
     }
 
     @Override

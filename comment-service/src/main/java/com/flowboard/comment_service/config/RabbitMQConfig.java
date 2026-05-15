@@ -34,7 +34,7 @@ public class RabbitMQConfig {
      the true here is for durable means if we restart so the messages in queue are not removed.
      */
 
-    // If you wnat to specify bean name while creating use @Bean("singleQueueBean")
+    // If you want to specify bean name while creating use @Bean("singleQueueBean")
     @Bean
     public Queue singleNotificationQueue() {
         return new Queue(singleQueue, true);

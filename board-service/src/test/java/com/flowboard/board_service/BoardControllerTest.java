@@ -2,6 +2,7 @@ package com.flowboard.board_service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flowboard.board_service.controller.BoardController;
+import com.flowboard.board_service.dto.BoardDto;
 import com.flowboard.board_service.dto.BoardRequestDto;
 import com.flowboard.board_service.dto.BoardResponseDto;
 import com.flowboard.board_service.dto.BoardUpdateRequestDto;
@@ -13,6 +14,8 @@ import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;

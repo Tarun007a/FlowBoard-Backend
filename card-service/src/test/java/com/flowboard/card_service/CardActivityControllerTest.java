@@ -82,4 +82,12 @@ class CardActivityControllerTest {
         mockMvc.perform(get("/api/v1/cards/card/1"))
                 .andExpect(status().isBadRequest());
     }
+
+    @Test
+    void getByCard_withInvalidHeader_returns400() throws Exception {
+
+        mockMvc.perform(get("/api/v1/cards/card/1")
+                        .header("X-User-Id", "abc"))
+                .andExpect(status().isBadRequest());
+    }
 }

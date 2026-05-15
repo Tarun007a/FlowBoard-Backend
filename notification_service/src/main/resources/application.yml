@@ -12,8 +12,8 @@ spring:
 
 
   datasource:
-    url: jdbc:mysql://localhost:3306/flow_board_notification_service_db
-    username: root
+    url: ${db_url}
+    username: ${db_username}
     password: ${db_password}
 
   jpa:
@@ -21,6 +21,7 @@ spring:
       ddl-auto: update
 
   rabbitmq:
+#    host: rabbitmq
     host: localhost
     port: 5672
     username: guest
@@ -30,6 +31,7 @@ spring:
     admin:
       client:
         url: http://localhost:9090
+#        url: http://admin:9090
 
 management:
   endpoints:
@@ -41,14 +43,10 @@ management:
     health:
       show-details: always
 
-security:
-  jwt:
-    secret: ${jwt-secret-key}
-
 brevo:
-  api-key: ${brevo-api-key}
+  api-key: ${brevo_api_key}
   sender:
-    email: ${brevo-sender-mail}
+    email: ${brevo_sender_mail}
     name: FlowBoard
 
 domain:
@@ -58,10 +56,12 @@ domain:
 eureka:
   client:
     service-url:
+#      defaultZone: http://eureka:8761/eureka/
       defaultZone: http://localhost:8761/eureka/
     register-with-eureka: true
     fetch-registry: true
   instance:
+#    hostname: notification-service
     prefer-ip-address: true
 
 rabbitmq:
