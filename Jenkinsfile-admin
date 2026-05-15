@@ -18,7 +18,7 @@ pipeline {
 
         stage('Build Jar') {
             steps {
-                dir('flowboard-admin-server') {
+                dir('admin-server') {
                     sh 'chmod +x mvnw'
                     sh './mvnw clean package -DskipTests'
                 }
